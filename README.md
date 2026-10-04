@@ -266,7 +266,12 @@ Ekybe's team writes a quarter of its messages in Greek, so Greek is first-class.
 | Rule under a window title bar or a pane header | **2px** | ink |
 | Rule above the composer / a footer bar | 2px | ink |
 | Rule between menu groups | 1px dotted | ink |
+| Separator between two panes side by side | **1px** (1pt on a phone), full height | ink |
 | Disabled outline | 1px (2px on the default button) | muted |
+
+**Panes side by side** are parted by one thin ink line running their full height (on a phone, from the very top through the status bar to the bottom): no shadow under it, no dither gutter, no thick edge. This is how Ekybe draws its sidebar against the conversation, and Roberto preferred it to Agentrix's iPhone drawer, which had a 3pt edge starting under the status bar plus a hard shadow (4 Oct 2026). A pane that can be dragged wider keeps the same line; the drag target is an invisible strip a few pixels either side of it.
+
+![The pane line on a phone (Agentrix's drawer)](images/pane-line-iphone.png)
 
 ### 6.3 Elevation
 
@@ -434,6 +439,21 @@ Approved 4 Oct 2026 in Agentrix as **version B**: pure 1984, but the app's line 
 
 The Mac title bar's zoom-box menu (§8.1) is one of these menus, opened by hovering.
 
+**On a phone** (Agentrix's iPhone app, `ClassicMenu.swift`, 4 Oct 2026) the same menu, sized for a finger:
+
+| Part | Spec |
+|---|---|
+| Box | As above: paper, 1pt ink edge, 2pt hard shadow; up to 300pt wide (screen width − 24pt) |
+| Type and rows | Chicago 16pt on rows at least **44pt** tall, 14pt side padding |
+| Placement | Next to the button that opened it: below it when the button is in the top half of the screen, above it in the bottom half; aligned to the button's nearer side. Scrolls if it is taller than the room |
+| Pressed row | Reversed while the finger is down; the choice happens on release |
+| Sections | A muted Chicago 12pt heading (Model, Effort), rows under it |
+| Submenus | Open **in place**, replacing the list, with a back row (‹ and the submenu's name) on top and a dotted rule under it. There is no room beside the row on a phone |
+| Closing | A tap outside closes it and does nothing else. A chosen action runs only after the menu has gone, so a sheet or alert it opens appears normally |
+| Long-press menus | Stay the system's own (they are about the pressed thing, not the app) |
+
+![The 1984 menu on an iPhone](images/menu-iphone.png)
+
 ### 8.8 Dialog
 
 `.c84-dialog`
@@ -505,6 +525,7 @@ In this kit every picture sits in a 1px ink frame (`.c84-avatar`). In Ekybe, pic
 ## 10. Interaction and motion
 
 - **No transitions or animations.** State changes are instant: hover, menus, panels, toasts.
+- **Panels opening and closing** switch in one frame. Anything inside them drawn in its own layer (a web view, a terminal canvas, a live device mirror) is resized by the browser engine a few frames later, which left the old edge on screen for a moment in Agentrix. Hide the side's contents and its separator for the switch and show them two frames later (`requestAnimationFrame` twice), once they have their new size.
 - **Hover:**
   - rows get the 9% hover fill
   - menu items and buttons reverse
@@ -611,6 +632,8 @@ Agentrix's iPhone app implements the same system natively in `ios/AgentDeck/Clas
 | Stripes | `Stripes`, `StripedTitle` |
 | Buttons | `ClassicButtonStyle`, `ProminentButton` |
 | Lists, bars | `ClassicList`, `ClassicBar` |
+| `showMenu()`, `.c84-menu` | `AppMenu` with `MenuEntry` data (`ClassicMenu.swift`): iOS's `Menu` in the other looks, the 1984 menu in Classic, from one definition |
+| Pane separator | A 1pt ink line, full height (the drawer's edge in `DrawerView.swift`) |
 
 Register fonts by PostScript name. Agentrix uses `ChicagoFLF` and `ChicagoFLF-Light`. This kit's files are `ChicagoFLF-Greek` (display) and `ChicagoFLF-Light` (text, now with Greek); swap them in to get Greek natively too.
 
@@ -768,6 +791,9 @@ The untouched original is kept in `fonts/source/ChicagoFLF.ttf`. To add another 
 | 4 Oct | Decorations queued, on-then-off, re-sent after full screen | The macOS bar came back over the 1984 one after a launch |
 | 4 Oct | Message text size: 5 steps, message text and composer only, per device | "can we have a setting for font size as well?" |
 | 4 Oct | Menus drawn 1984 style, version B: Chicago, 21px rows, line icons kept, reversed row, dotted separators, submenus, keyboard | Agentrix mockup A (pure) / B (with icons) / B at night; Roberto chose B. Ekybe follows. |
+| 4 Oct | Panes parted by one thin ink line, full height, no shadow or gutter | Roberto, from Ekybe's sidebar on a phone: "I like this design better" than Agentrix's thick drawer edge |
+| 4 Oct | Phone menus: the same 1984 menu, 44pt rows, placed by the button, submenus in place | "We fixed the menu style in desktop, can you do the same for mobile as well?" |
+| 4 Oct | Panels switch instantly with their layers hidden for two frames | Agentrix left the old separator on screen for a few milliseconds when a side panel opened or closed |
 
 ---
 
@@ -780,6 +806,7 @@ The untouched original is kept in `fonts/source/ChicagoFLF.ttf`. To add another 
 | `classic-1984.js` | Colour recipe, presets, `applyClassic`, `followSystem`, text sizes, `ditherMask`, `renderBitAvatar`, `showMenu`, `closeMenu` |
 | `fonts/ChicagoGreek.ttf`, `fonts/ChicagoLight.ttf` | The two faces |
 | `fonts/README.ChicagoFLF` | The public-domain statement for ChicagoFLF |
+| `images/menu-iphone.png`, `images/pane-line-iphone.png` | The phone menu and the pane line, from Agentrix's iPhone app |
 | `fonts/Geneva.ttf`, `fonts/README.Geneva` | An optional Geneva text face (a 1992 copy, Latin only) and where it came from |
 | `fonts/source/ChicagoFLF.ttf` | The untouched original, input to the font tools |
 | `specimen.html` | Every component; right-click for a live menu. Query `?tint=green|teal|blue|amber`, `?night=1`, `?strength=0..100`, `?size=-2..2` |
