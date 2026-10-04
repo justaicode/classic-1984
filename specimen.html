@@ -1,0 +1,159 @@
+<!doctype html>
+<!--
+  Classic 1984 — specimen. Every component in classic-1984.css on one screen.
+  Open it from a local server (fonts and the 1-bit photo need same-origin):
+    python3 -m http.server   (in this folder)     then  /specimen.html
+  Query: ?tint=green|teal|blue|amber   ?night=1   ?strength=0..100   ?size=-2..2
+-->
+<html lang="en" class="c84">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Classic 1984 — specimen</title>
+<link rel="stylesheet" href="classic-1984.css">
+<style>
+  body { margin: 0; min-height: 100vh; padding: 22px; box-sizing: border-box; }
+  .grid { display: grid; grid-template-columns: 1.55fr 1fr; gap: 22px; align-items: start; }
+  .app { display: grid; grid-template-columns: 250px 1fr; height: 520px; }
+  .side { border-right: 1px solid var(--ink); display: flex; flex-direction: column; min-height: 0; }
+  .main { display: flex; flex-direction: column; min-height: 0; }
+  .scroll { overflow-y: scroll; flex: 1; min-height: 0; }
+  .sec { padding: 12px 12px 4px; font: 11px var(--c84-display); letter-spacing: .5px; }
+  .msg { display: flex; gap: 10px; padding: 9px 16px; }
+  .msg b { font: 14px var(--c84-display); font-weight: normal; }
+  .msg .c84-meta { margin-left: 6px; }
+  .msg p { margin: 2px 0 0; }
+  .composer { border-top: 2px solid var(--ink); padding: 10px 14px; display: flex; gap: 12px; align-items: center; }
+  .composer .c84-field { flex: 1; }
+  .card { padding: 14px 16px; }
+  .card h3 { margin: 0 0 10px; font-size: 14px; }
+  .row-gap { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .stack { display: grid; gap: 18px; }
+  .swatches { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .sw { border: 1px solid var(--ink); padding: 6px; font: 11px var(--c84-display); display: grid; gap: 4px; justify-items: center; }
+  .sw i { display: grid; place-items: center; width: 100%; height: 26px; border: 1px solid; font: 12px var(--c84-display); font-style: normal; }
+  .tok { display: grid; grid-template-columns: 26px 1fr; gap: 8px; align-items: center; font-size: 12px; }
+  .tok span:first-child { width: 26px; height: 18px; border: 1px solid var(--ink); }
+  label { display: flex; gap: 8px; align-items: center; font-size: 13px; }
+  .bar-boxes { display: flex; align-items: center; }
+</style>
+</head>
+<body class="c84-desktop">
+<div class="grid">
+
+  <!-- A whole window: bar, two panes, list, messages, composer -->
+  <div class="c84-window">
+    <div class="c84-window-bar">
+      <span class="bar-boxes"><button class="c84-box is-close" aria-label="Close"></button><button class="c84-box is-mini" aria-label="Minimise"></button><button class="c84-box is-zoom" aria-label="Zoom"></button></span>
+      <span class="c84-window-title">Classic 1984</span>
+    </div>
+    <div class="app">
+      <div class="side">
+        <div class="c84-pane-bar is-plain">Workspace</div>
+        <div class="scroll">
+          <div class="sec">CHANNELS</div>
+          <div class="c84-row"># general</div>
+          <div class="c84-row is-selected"># παραγωγή <span style="margin-left:auto" class="c84-badge">3</span></div>
+          <div class="c84-row"># design-crit <span style="margin-left:auto" class="c84-badge">12</span></div>
+          <div class="c84-row"># random</div>
+          <div class="sec">DIRECT MESSAGES</div>
+          <div class="c84-row"><span class="c84-avatar is-ink" style="width:22px;height:22px;font-size:9px">MA</span>maria<span class="c84-dot is-active" style="margin-left:auto"></span></div>
+          <div class="c84-row"><span class="c84-avatar is-bit" data-photo="images/samples/person-4.png" style="width:22px;height:22px"></span>nikos<span class="c84-dot is-away" style="margin-left:auto"></span></div>
+          <div class="c84-row"><span class="c84-avatar" style="width:22px;height:22px"><img src="images/samples/person-5.png" alt=""></span>alex<span class="c84-dot" style="margin-left:auto"></span></div>
+          <div class="c84-row"><span class="c84-avatar" style="width:22px;height:22px;font-size:9px;background:#c9e2c0;color:#23401c">YO</span>you<span class="c84-dot is-active" style="margin-left:auto"></span></div>
+        </div>
+      </div>
+      <div class="main">
+        <div class="c84-pane-bar is-plain"># παραγωγή <span class="c84-meta" style="font-family:var(--c84-text)">Weekly proofs, Thu 2pm</span></div>
+        <div class="scroll">
+          <div class="msg"><span class="c84-avatar" style="background:#e9c7a3;color:#3a2a1a">SA</span><div><b>sam</b><span class="c84-meta">9:41</span><p class="c84-body">Morning! The proofs for the autumn issue are in the shared folder.</p></div></div>
+          <div class="msg"><span class="c84-avatar is-ink">EL</span><div><b>eleni</b><span class="c84-meta">9:44</span><p class="c84-body">Καλημέρα! Τα είδα, θα τα κοιτάξω μέχρι το μεσημέρι.</p></div></div>
+          <div class="msg"><span class="c84-avatar"><img src="images/samples/person-3.png" alt=""></span><div><b>maria</b><span class="c84-meta">10:02</span><p class="c84-body">Can we move Friday’s lunch to 2pm? <a href="#">Vote here</a>. Code: <code>npm run build</code></p></div></div>
+          <div class="msg"><span class="c84-avatar is-bit" data-photo="images/samples/person-1.png"></span><div><b>jo</b><span class="c84-meta">10:05</span><p class="c84-body">Ναι, στις 2 είναι μια χαρά για μένα. Ευχαριστώ!</p>
+            <img class="c84-frame" src="images/samples/scene.png" alt="" style="width:120px;height:80px;object-fit:cover;margin-top:6px;display:block"></div></div>
+        </div>
+        <div class="composer">
+          <input class="c84-field" placeholder="Message #παραγωγή…">
+          <button class="c84-button is-default">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- The parts, one by one -->
+  <div class="stack">
+    <div class="c84-window">
+      <div class="c84-window-bar"><span class="c84-window-title">Colours</span></div>
+      <div class="card">
+        <div class="swatches" id="swatches"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;margin-top:12px">
+          <div class="tok"><span style="background:var(--ink)"></span>--ink</div>
+          <div class="tok"><span style="background:var(--paper)"></span>--paper</div>
+          <div class="tok"><span style="background:var(--c84-muted)"></span>muted · 64%</div>
+          <div class="tok"><span style="background:var(--c84-half)"></span>half · 50%</div>
+          <div class="tok"><span style="background:var(--c84-tint)"></span>tint · 12%</div>
+          <div class="tok"><span style="background:var(--c84-hover)"></span>hover · 9%</div>
+          <div class="tok"><span style="background:var(--c84-dither)"></span>dither</div>
+          <div class="tok"><span style="background:var(--c84-stripes)"></span>stripes</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="c84-window">
+      <div class="c84-window-bar"><span class="c84-window-title">Controls</span></div>
+      <div class="card stack" style="gap:14px">
+        <div class="row-gap">
+          <button class="c84-button">Cancel</button>
+          <button class="c84-button is-default">OK</button>
+          <button class="c84-button" disabled>Disabled</button>
+          <button class="c84-button is-default" disabled>Send</button>
+        </div>
+        <div class="row-gap">
+          <label><input type="checkbox" checked> Night look</label>
+          <label><input type="checkbox"> Off</label>
+          <label><input type="radio" name="r" checked> One</label>
+          <label><input type="radio" name="r"> Two</label>
+        </div>
+        <input type="range" min="0" max="100" value="60" style="width:100%">
+        <input class="c84-field" value="Ζάχαρη, ζεστό, κουζίνα — Chicago Light">
+      </div>
+    </div>
+
+    <div class="row-gap" style="align-items:flex-start">
+      <div class="c84-menu" role="menu">
+        <button>Enter Full Screen</button>
+        <hr>
+        <button>Fill</button>
+        <button style="background:var(--ink);color:var(--paper)">Center</button>
+        <hr>
+        <button>Left Half</button>
+        <button>Right Half</button>
+        <hr>
+        <button disabled>Return to Previous Size</button>
+      </div>
+      <div class="c84-dialog" style="flex:1">
+        <h3 style="margin:0 0 6px;font-size:14px">Lunch on Friday?</h3>
+        <label style="margin:4px 0"><input type="radio" name="p" checked> 1pm</label>
+        <label style="margin:4px 0"><input type="radio" name="p"> 2pm</label>
+        <div class="row-gap" style="justify-content:flex-end;margin-top:8px"><button class="c84-button is-default">Vote</button></div>
+      </div>
+    </div>
+    <div class="c84-notice">✓ Notifications are on</div>
+  </div>
+</div>
+
+<script type="module">
+  import { CLASSIC_TINTS, classicColors, applyClassic, applyTextSize, renderBitAvatar } from './classic-1984.js'
+  const q = new URLSearchParams(location.search)
+  const tint = CLASSIC_TINTS.find((t) => t.key === q.get('tint'))
+  const prefs = { hue: tint?.hue ?? 135, strength: q.has('strength') ? +q.get('strength') : tint?.hue != null ? 100 : 0, night: true }
+  applyClassic(document.documentElement, prefs, q.get('night') === '1')
+  applyTextSize(document.documentElement, +(q.get('size') ?? 0))
+  document.getElementById('swatches').innerHTML = CLASSIC_TINTS.map((t) => {
+    const c = classicColors(t.hue == null ? { hue: 0, strength: 0 } : { hue: t.hue, strength: 100 }, q.get('night') === '1')
+    return `<div class="sw"><i style="background:${c.paper};color:${c.ink};border-color:${c.ink}">Aa</i>${t.label}</div>`
+  }).join('')
+  for (const el of document.querySelectorAll('.c84-avatar.is-bit')) renderBitAvatar(el, el.dataset.photo).catch(() => {})
+</script>
+</body>
+</html>

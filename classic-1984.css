@@ -1,0 +1,550 @@
+/* ==========================================================================
+ * Classic 1984 — portable stylesheet
+ *
+ * The 1984 Macintosh look as built for Ekybe (src/classic.css) and Agentrix
+ * (renderer/classic.css), lifted out of both apps so a third can copy it.
+ * The rules, measurements and reasons are in README.md beside this file.
+ *
+ * Use:
+ *   1. Copy this file, classic-1984.js and fonts/ into your app.
+ *   2. Put class="c84" on <html> (or on any container you want in the style).
+ *   3. Call applyClassic() from classic-1984.js to set the two colours, or
+ *      leave them: the defaults are plain black on white.
+ *   4. Use the c84-* classes below for components.
+ *
+ * Every colour here is --ink, --paper, or a mix of the two. Nothing else.
+ * ========================================================================== */
+
+/* ---- Fonts ------------------------------------------------------------- */
+
+/* Chicago with the Greek ChicagoFLF never had, drawn on its own 12-pixel grid
+   (Ekybe scripts/make-chicago-greek.py). Names, titles, buttons, menus. */
+@font-face {
+  font-family: 'Chicago';
+  src: url('fonts/ChicagoGreek.ttf') format('truetype');
+  font-display: swap;
+}
+/* The same, with upright strokes thinned for running text
+   (Ekybe scripts/make-chicago-light.py). Body text, fields. */
+@font-face {
+  font-family: 'Chicago Light';
+  src: url('fonts/ChicagoLight.ttf') format('truetype');
+  font-display: swap;
+}
+
+/* ---- Tokens ------------------------------------------------------------ */
+
+.c84 {
+  /* The only two colours. applyClassic() overwrites them from a hue and a
+     strength; these are strength 0, day. */
+  --ink: #000;
+  --paper: #fff;
+
+  /* Everything else is derived. Percentages are of ink in paper. */
+  --c84-muted: color-mix(in srgb, var(--ink) 64%, var(--paper)); /* secondary text, timestamps */
+  --c84-tint: color-mix(in srgb, var(--ink) 12%, var(--paper)); /* a soft accent fill */
+  --c84-hover: color-mix(in srgb, var(--ink) 9%, var(--paper)); /* row under the pointer */
+  --c84-half: color-mix(in srgb, var(--ink) 50%, var(--paper)); /* "away" presence */
+
+  /* Grey does not exist in 1-bit. It is a pattern. */
+  --c84-dither: repeating-conic-gradient(var(--ink) 0 25%, var(--paper) 0 50%) 0 0 / 2px 2px;
+  --c84-stripes: repeating-linear-gradient(var(--ink) 0 1px, var(--paper) 1px 2px);
+  --c84-dots-h: repeating-linear-gradient(90deg, var(--ink) 0 1px, transparent 1px 2px);
+
+  /* Elevation is a hard, unblurred step down and right. */
+  --c84-shadow: 2px 2px 0 var(--ink);
+  --c84-shadow-sm: 1px 1px 0 var(--ink);
+
+  /* Type */
+  --c84-display: 'Chicago', -apple-system, sans-serif;
+  --c84-text: 'Chicago Light', -apple-system, 'Helvetica Neue', sans-serif;
+  --c84-mono: Monaco, ui-monospace, Menlo, monospace;
+  --c84-text-size: 14.5px; /* message / body text at the default step */
+  --c84-text-scale: 1; /* the reader's text-size setting multiplies this */
+
+  /* Metrics */
+  --c84-window-bar: 28px; /* a window's own title bar */
+  --c84-pane-bar: 60px; /* a pane's header inside the window */
+  --c84-rule: 1px; /* every border */
+  --c84-rule-bold: 2px; /* the line under a title bar */
+
+  color-scheme: light;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--c84-text);
+}
+.c84[data-c84-night] {
+  color-scheme: dark;
+}
+.c84 ::selection {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* Optional, for re-skinning an app that was not built for this: square every
+   corner and drop every soft shadow, then bring back the few round things
+   explicitly (see README, "Re-skinning an existing app"). */
+.c84.c84-reskin *,
+.c84.c84-reskin *::before,
+.c84.c84-reskin *::after {
+  border-radius: 0 !important;
+  text-shadow: none !important;
+}
+
+/* ---- Type -------------------------------------------------------------- */
+
+.c84-display,
+.c84 h1,
+.c84 h2,
+.c84 h3 {
+  font-family: var(--c84-display);
+  /* Chicago has one weight. A synthesized bold smears it. */
+  font-weight: normal;
+  font-synthesis: none;
+}
+.c84-body {
+  font-family: var(--c84-text);
+  font-size: calc(var(--c84-text-size) * var(--c84-text-scale));
+  line-height: 1.55; /* unitless, so it follows the text size */
+}
+.c84-meta {
+  color: var(--c84-muted);
+  font-size: 11px;
+}
+.c84 code,
+.c84-mono {
+  font-family: var(--c84-mono);
+}
+.c84 a {
+  color: var(--ink);
+  text-decoration: underline;
+}
+
+/* ---- Surfaces and patterns ---------------------------------------------- */
+
+.c84-desktop {
+  background: var(--c84-dither);
+}
+.c84-dither {
+  background: var(--c84-dither);
+}
+.c84-stripes {
+  background: var(--c84-stripes);
+}
+.c84-frame {
+  outline: 1px solid var(--ink);
+}
+/* A dotted rule, as between groups in a menu */
+.c84-rule-dotted {
+  border: 0;
+  height: 1px;
+  background: var(--c84-dots-h);
+}
+
+/* ---- Windows ----------------------------------------------------------- */
+
+.c84-window {
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  box-shadow: var(--c84-shadow);
+}
+
+/* The window's own title bar: 28px, stripes between two 7px paper margins,
+   the name centred in a paper box, a 2px rule beneath. */
+.c84-window-bar {
+  position: relative;
+  height: var(--c84-window-bar);
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  border-bottom: var(--c84-rule-bold) solid var(--ink);
+  background:
+    linear-gradient(var(--paper) 0 7px, transparent 7px calc(100% - 7px), var(--paper) calc(100% - 7px)),
+    var(--c84-stripes);
+  user-select: none;
+  -webkit-user-select: none;
+}
+.c84-window-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0 12px;
+  background: var(--paper);
+  font: 14px/20px var(--c84-display);
+  white-space: nowrap;
+  cursor: default;
+}
+
+/* The three boxes in the bar: close, minimise, zoom. 13px squares, each in a
+   3px paper moat so the stripes stop short of it. */
+.c84-box {
+  display: block;
+  flex: none;
+  width: 13px;
+  height: 13px;
+  padding: 0;
+  margin: 0 4px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  outline: 3px solid var(--paper);
+  cursor: default;
+}
+.c84-box + .c84-box {
+  margin-left: 2px;
+}
+.c84-box.is-mini {
+  background: linear-gradient(var(--ink), var(--ink)) center calc(100% - 2px) / 7px 2px no-repeat, var(--paper);
+}
+.c84-box.is-zoom {
+  background:
+    linear-gradient(var(--ink), var(--ink)) 0 6px / 7px 1px no-repeat,
+    linear-gradient(var(--ink), var(--ink)) 6px 0 / 1px 7px no-repeat,
+    var(--paper);
+}
+/* Pressed: the close box shows its star, the others fill */
+.c84-box.is-close:active {
+  background:
+    linear-gradient(var(--ink), var(--ink)) center / 1px 100% no-repeat,
+    linear-gradient(var(--ink), var(--ink)) center / 100% 1px no-repeat,
+    linear-gradient(45deg, transparent 46%, var(--ink) 46% 54%, transparent 54%),
+    linear-gradient(-45deg, transparent 46%, var(--ink) 46% 54%, transparent 54%),
+    var(--paper);
+}
+.c84-box.is-mini:active,
+.c84-box.is-zoom:active {
+  background: var(--ink);
+}
+
+/* A pane's header inside the window (sidebar, conversation, thread): 60px,
+   a 9px band of stripes along the top, a 2px rule beneath. Every pane header
+   is exactly 60px so their rules meet in one line across the window. */
+.c84-pane-bar {
+  height: var(--c84-pane-bar);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  background: var(--c84-stripes) top left / 100% 9px no-repeat, var(--paper);
+  border-bottom: var(--c84-rule-bold) solid var(--ink);
+  font-family: var(--c84-display);
+  flex: none;
+}
+/* Directly under a window bar the band would be stripes on stripes: drop it,
+   and let the bold rule alone divide. */
+.c84-window-bar + * .c84-pane-bar,
+.c84-pane-bar.is-plain {
+  background: var(--paper);
+}
+
+/* ---- Lists ------------------------------------------------------------- */
+
+.c84-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 5px 12px;
+  cursor: default;
+}
+.c84-row:hover {
+  background: var(--c84-hover);
+}
+/* The selected row is drawn in reverse — everything inside it too */
+.c84-row.is-selected,
+.c84-row.is-selected * {
+  background-color: var(--ink);
+  color: var(--paper);
+}
+.c84-row.is-selected .c84-badge {
+  background: var(--paper);
+  color: var(--ink);
+}
+.c84-row.is-selected .c84-dot {
+  box-shadow: inset 0 0 0 1px var(--paper);
+}
+
+/* Unread count: ink pill, the one rounded rectangle besides the default
+   button */
+.c84-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 16px;
+  padding: 0 5px;
+  border-radius: 6px;
+  background: var(--ink);
+  color: var(--paper);
+  font: 11px/1 var(--c84-display);
+}
+
+/* Presence: round, the only circles there are */
+.c84-dot {
+  width: 9px;
+  height: 9px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--paper);
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+.c84-dot.is-active {
+  background: var(--ink);
+}
+.c84-dot.is-away {
+  background: var(--c84-half);
+}
+
+/* ---- Buttons ----------------------------------------------------------- */
+
+.c84-button {
+  appearance: none;
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 13px/18px var(--c84-display);
+  padding: 4px 14px;
+  cursor: default;
+}
+.c84-button:active,
+.c84-button:hover:not(:disabled) {
+  background: var(--ink);
+  color: var(--paper);
+}
+/* The default button (what Return presses): rounded 8px, 2px border, and the
+   thick outer ring 2px out — the one ornament 1984 allowed itself. */
+.c84-button.is-default {
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  box-shadow: 0 0 0 2px var(--paper), 0 0 0 5px var(--ink);
+  margin: 5px;
+}
+/* Disabled is dimmed, not hidden */
+.c84-button:disabled {
+  color: var(--c84-muted);
+  border-color: var(--c84-muted);
+  background: var(--paper);
+}
+.c84-button.is-default:disabled {
+  box-shadow: none;
+  border-radius: 8px;
+}
+
+/* ---- Fields ------------------------------------------------------------ */
+
+.c84-field {
+  appearance: none;
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--c84-text);
+  font-size: calc(var(--c84-text-size) * var(--c84-text-scale));
+  padding: 6px 8px;
+}
+.c84-field::placeholder {
+  color: var(--c84-muted);
+}
+/* Not in the 1984 system; this is ours. A dotted ink outline reads as
+   "you are here" without adding a colour. */
+.c84 :focus-visible {
+  outline: 1px dotted var(--ink);
+  outline-offset: 2px;
+}
+.c84 input:focus-visible,
+.c84 textarea:focus-visible {
+  outline-offset: -3px;
+}
+
+.c84 input,
+.c84 textarea,
+.c84 select {
+  accent-color: var(--ink);
+}
+.c84 input[type='checkbox'] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  background: var(--paper);
+  flex: none;
+  cursor: default;
+}
+/* Checked is an X corner to corner, as it was */
+.c84 input[type='checkbox']:checked {
+  background:
+    linear-gradient(45deg, transparent calc(50% - 0.8px), var(--ink) calc(50% - 0.8px) calc(50% + 0.8px), transparent calc(50% + 0.8px)),
+    linear-gradient(-45deg, transparent calc(50% - 0.8px), var(--ink) calc(50% - 0.8px) calc(50% + 0.8px), transparent calc(50% + 0.8px)),
+    var(--paper);
+}
+.c84 input[type='radio'] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  background: var(--paper);
+  cursor: default;
+}
+.c84 input[type='radio']:checked {
+  background: radial-gradient(var(--ink) 0 3px, transparent 3.5px), var(--paper);
+}
+/* Slider: a dithered track, a square paper thumb with a 1px hard shadow */
+.c84 input[type='range'] {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 12px;
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  background: var(--c84-dither);
+}
+.c84 input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 11px;
+  height: 20px;
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  box-shadow: var(--c84-shadow-sm);
+}
+.c84 input[type='range']::-moz-range-thumb {
+  width: 11px;
+  height: 20px;
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  box-shadow: var(--c84-shadow-sm);
+}
+
+/* ---- Menus ------------------------------------------------------------- */
+
+/* A pull-down: paper, 1px ink, hard shadow, Chicago. The item under the
+   pointer is reversed; groups are split by a dotted rule. */
+.c84-menu {
+  min-width: 200px;
+  padding: 3px 0;
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  box-shadow: var(--c84-shadow);
+  display: grid;
+}
+.c84-menu > button,
+.c84-menu-item {
+  all: unset;
+  padding: 2px 16px;
+  font: 13px/18px var(--c84-display);
+  color: var(--ink);
+  white-space: nowrap;
+  cursor: default;
+}
+.c84-menu > button:hover:not(:disabled),
+.c84-menu-item:hover:not([aria-disabled='true']) {
+  background: var(--ink);
+  color: var(--paper);
+}
+.c84-menu > button:disabled,
+.c84-menu-item[aria-disabled='true'] {
+  color: var(--c84-muted);
+}
+.c84-menu > hr {
+  border: 0;
+  height: 1px;
+  margin: 3px 0;
+  background: var(--c84-dots-h);
+}
+
+/* ---- Dialogs ----------------------------------------------------------- */
+
+/* The double border: 1px ink, 3px paper, 2px ink, then the hard shadow */
+.c84-dialog {
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  box-shadow:
+    inset 0 0 0 3px var(--paper),
+    inset 0 0 0 5px var(--ink),
+    var(--c84-shadow);
+  padding: 16px 18px;
+}
+
+/* ---- Scroll bars ------------------------------------------------------- */
+
+/* Dithered track, square paper thumb, square ends. Pseudo-elements, so no
+   blanket radius reset reaches them: they are set here explicitly. */
+.c84 ::-webkit-scrollbar {
+  width: 14px;
+  height: 14px;
+}
+.c84 ::-webkit-scrollbar-track {
+  background: var(--c84-dither);
+  border-left: 1px solid var(--ink);
+  border-radius: 0;
+}
+.c84 ::-webkit-scrollbar-thumb {
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  min-height: 24px;
+}
+.c84 ::-webkit-scrollbar-corner {
+  background: var(--paper);
+}
+
+/* ---- People's pictures ------------------------------------------------- */
+
+.c84-avatar {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--ink);
+  font: 13px var(--c84-display);
+  background: var(--paper);
+  color: var(--ink);
+}
+.c84-avatar > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* Ink only: initials in a 3px dithered frame */
+.c84-avatar.is-ink {
+  border: 3px solid transparent;
+  outline: 1px solid var(--ink);
+  outline-offset: -1px;
+  background: linear-gradient(var(--paper), var(--paper)) padding-box, var(--c84-dither) border-box;
+}
+/* 1-bit photo: the ink shows through a dithered mask (classic-1984.js) */
+.c84-avatar.is-bit > i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--ink);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  image-rendering: pixelated;
+}
+.c84-row.is-selected .c84-avatar.is-ink,
+.c84-row.is-selected .c84-avatar.is-ink * {
+  background-color: transparent;
+  color: var(--ink);
+}
+
+/* ---- Toast / notice ---------------------------------------------------- */
+
+.c84-notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  box-shadow: var(--c84-shadow);
+  font: 13px/18px var(--c84-display);
+}
