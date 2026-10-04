@@ -1,0 +1,9 @@
+Geneva.ttf (family Geneva, PostScript GenevaPlain, version 001.001)
+
+A 1992 TrueType copy of Geneva, the Macintosh text face; its name table says
+"(c) !22! Soft 1992". It came from CufonFonts as geneva-cufonfonts.zip and
+states no licence. Roberto Zanon chose to include it here (2026-10-04).
+
+225 glyphs, Latin only: Greek and other scripts fall back to the system font.
+Word spaces are wide. Agentrix's iPhone app offers it as a chat text choice
+("Geneva"); the design system's own text face is Chicago Light.

@@ -206,6 +206,7 @@ Never use a pattern behind text.
 |---|---|---|---|
 | Display: names, titles, buttons, menus, labels, badges | `'Chicago'` | `fonts/ChicagoGreek.ttf` | ChicagoFLF plus the Greek it lacked (§17). One weight only. |
 | Text: messages, body, fields | `'Chicago Light'` | `fonts/ChicagoLight.ttf` | Chicago with upright strokes thinned for reading. Identical Latin to Agentrix's iPhone chat font. |
+| Text, optional | `'Geneva'` | `fonts/Geneva.ttf` | A 1992 copy of Geneva (PostScript GenevaPlain), Latin only, wide word spaces. An extra choice for chat text in Agentrix's iPhone app; see `fonts/README.Geneva`. |
 | Code | `Monaco` → `ui-monospace, Menlo, monospace` | system | Monaco is on every Mac; elsewhere the fallback is fine. |
 
 Fallback after both Chicagos: `-apple-system, 'Helvetica Neue', sans-serif`. With the bundled files, the fallback should only ever be reached for scripts the fonts don't cover (Cyrillic, CJK, and so on).
@@ -779,6 +780,7 @@ The untouched original is kept in `fonts/source/ChicagoFLF.ttf`. To add another 
 | `classic-1984.js` | Colour recipe, presets, `applyClassic`, `followSystem`, text sizes, `ditherMask`, `renderBitAvatar`, `showMenu`, `closeMenu` |
 | `fonts/ChicagoGreek.ttf`, `fonts/ChicagoLight.ttf` | The two faces |
 | `fonts/README.ChicagoFLF` | The public-domain statement for ChicagoFLF |
+| `fonts/Geneva.ttf`, `fonts/README.Geneva` | An optional Geneva text face (a 1992 copy, Latin only) and where it came from |
 | `fonts/source/ChicagoFLF.ttf` | The untouched original, input to the font tools |
 | `specimen.html` | Every component; right-click for a live menu. Query `?tint=green|teal|blue|amber`, `?night=1`, `?strength=0..100`, `?size=-2..2` |
 | `pictures.html` | The four picture styles. `?night=1` |
