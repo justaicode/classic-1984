@@ -393,15 +393,45 @@ Icon buttons (attach, emoji, microphone) stay as the host app draws them, in ink
   - thumb: 11 × 20px paper, 1px ink border, 1px hard shadow
 - **Select / native pickers:** `accent-color: var(--ink)`. Let the platform draw them; with `color-scheme` set they follow day and night.
 
-### 8.7 Pull-down menu
+### 8.7 Menus: pull-down, context menu, submenu
 
-`.c84-menu` (children: `<button>` items, `<hr>` separators)
+`.c84-menu` · `.c84-menu-item` (`.is-on`, `[aria-disabled]`) · `.c84-menu-icon` · `.c84-menu-check` · `.c84-menu-label` · `.c84-menu-key` · `.c84-menu-sub` · `.c84-menu-sep` · `.c84-menu-head` — built and run by `showMenu()` in `classic-1984.js`.
 
-- paper, 1px ink border, 2px hard shadow, minimum width 200px, 3px vertical padding
-- items in Chicago 13/18 with 2px × 16px padding
-- **Hover:** reversed. **Disabled:** muted, not hidden.
-- Separators are a 1px dotted rule with 3px margin.
-- The menu hangs 6px below its anchor, left-aligned to it (−2px).
+Approved 4 Oct 2026 in Agentrix as **version B**: pure 1984, but the app's line icons are kept.
+
+| Part | Spec |
+|---|---|
+| Box | Paper, 1px ink border, 2px hard shadow, 2px vertical padding, min 180px, max 340px wide |
+| Type | Chicago 13px, line height 1 |
+| Row | 21px tall, padding 0 12px 0 10px, 8px between columns, no wrapping |
+| Columns, left to right | Tick (11px, only if the menu has a checkable item) · icon (16 × 14px, only if any item has one) · label (ellipsis when too long) · shortcut (right, 18px gap) · submenu arrow (a solid right-pointing triangle, 14px gap) |
+| Icons | Line icons used as a **mask**, so they draw in the row's colour and reverse with it. A row without an icon keeps the empty column, so labels stay in line. |
+| Tick | A square-capped check, 11px |
+| Under the pointer | Reversed: ink row, paper text and icon |
+| Disabled | 40% ink: dimmer than muted text, never hidden |
+| Separator | 1px dotted rule, 4px above and below |
+| Group heading | Chicago 11px, muted |
+
+![Version B](images/menu-b.png)
+
+**Behaviour:**
+- **Placement:**
+  - A context menu opens below and to the right of the point that was pressed.
+  - A pull-down hangs from its title, aligned to its left edge.
+  - Either way, if the menu would run off the window it is flipped back inside, with 4px to spare.
+- **Submenus** open beside their row, overlapping it by 2px and lifted 3px. At the window's edge they open to the left instead. Moving to another row closes deeper submenus.
+- **Pointer:** a press can be dragged down the menu and released on an item, the 1984 way. A click opens the menu and a second click chooses.
+- **Keyboard:**
+  - ↑ and ↓ move, skipping separators and disabled rows.
+  - → opens a submenu and ← closes it.
+  - Return or Space chooses; Esc closes one level.
+  - While the menu is open, it keeps all keys to itself.
+- **Closing:**
+  - A press outside closes the menu and does nothing else: the click it would have made is eaten, as macOS menus do.
+  - Leaving the window also closes it.
+- **Native apps:** macOS draws its own menus and they can't be themed. Agentrix therefore sends its menu templates (`Menu.buildFromTemplate`) to the window, which draws them like this while Classic is on. In the other themes it shows the native menus.
+
+The Mac title bar's zoom-box menu (§8.1) is one of these menus, opened by hovering.
 
 ### 8.8 Dialog
 
@@ -480,6 +510,7 @@ In this kit every picture sits in a 1px ink frame (`.c84-avatar`). In Ekybe, pic
   - icon buttons don't change
 - **Pressed:** reversed. The close box shows its star.
 - **Hover-to-open menus** (the zoom box) wait 450ms before opening and 250ms before closing, so passing over them does nothing.
+- **Menus** follow the pointer and the keyboard as described in §8.7.
 - **Focus:** a 1px dotted ink outline, offset 2px (inset 3px inside fields). This is an addition; 1984 had no visible keyboard focus.
 - **Cursor:** `default` over chrome: bars, boxes, menu items, buttons. Text cursor in fields only.
 - **Text selection:** reversed (ink background, paper text).
@@ -735,6 +766,7 @@ The untouched original is kept in `fonts/source/ChicagoFLF.ttf`. To add another 
 | 3 Oct | ζ redrawn | Review of the drawn alphabet |
 | 4 Oct | Decorations queued, on-then-off, re-sent after full screen | The macOS bar came back over the 1984 one after a launch |
 | 4 Oct | Message text size: 5 steps, message text and composer only, per device | "can we have a setting for font size as well?" |
+| 4 Oct | Menus drawn 1984 style, version B: Chicago, 21px rows, line icons kept, reversed row, dotted separators, submenus, keyboard | Agentrix mockup A (pure) / B (with icons) / B at night; Roberto chose B. Ekybe follows. |
 
 ---
 
@@ -744,11 +776,11 @@ The untouched original is kept in `fonts/source/ChicagoFLF.ttf`. To add another 
 |---|---|
 | `README.md` | This document |
 | `classic-1984.css` | Tokens, patterns and every component as `c84-*` classes |
-| `classic-1984.js` | Colour recipe, presets, `applyClassic`, `followSystem`, text sizes, `ditherMask`, `renderBitAvatar` |
+| `classic-1984.js` | Colour recipe, presets, `applyClassic`, `followSystem`, text sizes, `ditherMask`, `renderBitAvatar`, `showMenu`, `closeMenu` |
 | `fonts/ChicagoGreek.ttf`, `fonts/ChicagoLight.ttf` | The two faces |
 | `fonts/README.ChicagoFLF` | The public-domain statement for ChicagoFLF |
 | `fonts/source/ChicagoFLF.ttf` | The untouched original, input to the font tools |
-| `specimen.html` | Every component. Query `?tint=green|teal|blue|amber`, `?night=1`, `?strength=0..100`, `?size=-2..2` |
+| `specimen.html` | Every component; right-click for a live menu. Query `?tint=green|teal|blue|amber`, `?night=1`, `?strength=0..100`, `?size=-2..2` |
 | `pictures.html` | The four picture styles. `?night=1` |
 | `tools/make-chicago-greek.py`, `tools/make-chicago-light.py` | Font builds (§17) |
 | `tools/samples.html`, `tools/make-samples.sh` | Draw the made-up sample pictures in `images/samples/` |

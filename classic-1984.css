@@ -422,39 +422,104 @@
 
 /* ---- Menus ------------------------------------------------------------- */
 
-/* A pull-down: paper, 1px ink, hard shadow, Chicago. The item under the
-   pointer is reversed; groups are split by a dotted rule. */
+/* A 1984 menu — pull-down, context menu, submenu — as Agentrix approved it
+   (version B, 4 Oct 2026): Chicago 13px, 21px rows, a thin ink edge with a
+   hard shadow, the row under the pointer reversed, dotted separators, and the
+   app's line icons kept in a column of their own. showMenu() in
+   classic-1984.js builds this markup, places it and runs the keyboard. */
 .c84-menu {
-  min-width: 200px;
-  padding: 3px 0;
+  position: fixed;
+  z-index: 10000;
+  min-width: 180px;
+  max-width: 340px;
+  padding: 2px 0;
   background: var(--paper);
+  color: var(--ink);
   border: 1px solid var(--ink);
   box-shadow: var(--c84-shadow);
-  display: grid;
+  font: 13px/1 var(--c84-display);
+  user-select: none;
+  -webkit-user-select: none;
 }
-.c84-menu > button,
+/* A menu shown in place (a specimen, a menu bar's open title) */
+.c84-menu.is-static {
+  position: static;
+}
 .c84-menu-item {
-  all: unset;
-  padding: 2px 16px;
-  font: 13px/18px var(--c84-display);
-  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 21px;
+  padding: 0 12px 0 10px;
   white-space: nowrap;
   cursor: default;
 }
-.c84-menu > button:hover:not(:disabled),
-.c84-menu-item:hover:not([aria-disabled='true']) {
+.c84-menu-item.is-on,
+.c84-menu.is-static .c84-menu-item:hover:not([aria-disabled='true']) {
   background: var(--ink);
   color: var(--paper);
 }
-.c84-menu > button:disabled,
+/* Disabled is dimmed, never hidden: 40% ink, lighter than muted text */
 .c84-menu-item[aria-disabled='true'] {
-  color: var(--c84-muted);
+  color: color-mix(in srgb, var(--ink) 40%, var(--paper));
 }
-.c84-menu > hr {
-  border: 0;
+/* The icon column: a line icon used as a mask, so it takes the row's colour
+   and reverses with it. A row without an icon keeps the column empty, so the
+   labels stay in line. */
+.c84-menu-icon {
+  flex: none;
+  width: 16px;
+  height: 14px;
+  background: currentColor;
+  -webkit-mask: no-repeat center / contain;
+  mask: no-repeat center / contain;
+}
+.c84-menu-icon:not([style]) {
+  background: none;
+}
+/* Inline SVG icons work too: they draw in currentColor */
+.c84-menu-icon > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.c84-menu-icon:has(> svg) {
+  background: none;
+}
+/* The tick column, present only in menus that have a checkable item */
+.c84-menu-check {
+  flex: none;
+  width: 11px;
+  display: grid;
+  place-items: center;
+}
+.c84-menu-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* A keyboard shortcut, right-aligned, as 1984 menus showed ⌘-keys */
+.c84-menu-key {
+  flex: none;
+  margin-left: 18px;
+}
+/* The submenu arrow: a solid triangle pointing right */
+.c84-menu-sub {
+  flex: none;
+  margin-left: 14px;
+  display: grid;
+  place-items: center;
+}
+.c84-menu-sep {
   height: 1px;
-  margin: 3px 0;
+  margin: 4px 0;
   background: var(--c84-dots-h);
+}
+/* A greyed heading inside a menu (a group's name) */
+.c84-menu-head {
+  padding: 5px 12px 3px 10px;
+  font: 11px var(--c84-display);
+  color: var(--c84-muted);
 }
 
 /* ---- Dialogs ----------------------------------------------------------- */

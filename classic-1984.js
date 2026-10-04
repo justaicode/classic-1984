@@ -166,3 +166,180 @@ export async function renderBitAvatar(el, url) {
   i.style.webkitMaskImage = `url(${mask})`
   i.style.maskImage = `url(${mask})`
 }
+
+/**
+ * A 1984 menu: a context menu at a point, or a pull-down under an element.
+ * Ported from Agentrix's showClassicMenu (version B, approved 4 Oct 2026).
+ *
+ *   const id = await showMenu([
+ *     { id: 'edit', label: 'Edit project…', icon: '/icons/pencil.svg' },
+ *     { separator: true },
+ *     { id: 'sort', label: 'Sort by', submenu: [
+ *         { id: 'name', label: 'Name', checked: true },
+ *         { id: 'date', label: 'Date', checked: false } ] },
+ *     { id: 'del', label: 'Delete…', enabled: false },
+ *   ], { x: e.clientX, y: e.clientY })        // or { anchor: buttonElement }
+ *
+ * Items: { id, label, icon?, checked?, enabled?, key?, submenu? },
+ * { separator: true } or { heading: 'Text' }. `icon` is an image URL used as a
+ * mask (so it takes the ink and reverses with the row) or an inline <svg> string
+ * drawn in currentColor. Resolves with the chosen id, or null.
+ *
+ * Behaviour, all of it from the 1984 menus:
+ * - It opens below and right of the point, flipped back inside the window if
+ *   it would run off. Submenus open to the side, or to the left at the edge.
+ * - The row under the pointer is reversed. A press can be dragged down the menu
+ *   and released on an item, or a click opens it and a second click chooses.
+ * - Keys: ↑ ↓ move (skipping separators and disabled rows), → opens a submenu,
+ *   ← closes it, Return or Space chooses, Esc closes one level.
+ * - A press outside closes the menu and does nothing else: that click is eaten.
+ * - Leaving the window closes it.
+ */
+const MENU_CHECK = '<svg viewBox="0 0 12 12" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><path d="M2 6.5l2.5 2.5L10 3"/></svg>'
+const MENU_ARROW = '<svg viewBox="0 0 8 10" width="7" height="9" aria-hidden="true"><path d="M1 0l6 5-6 5z" fill="currentColor"/></svg>'
+const escHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
+let openMenu = null
+
+export function closeMenu() {
+  openMenu?.(null)
+}
+
+export function showMenu(items, { x = 40, y = 40, anchor = null, root = document.body } = {}) {
+  closeMenu()
+  return new Promise((resolve) => {
+    const stack = [] // open levels: { el, items, on }
+    let done = false
+    const usable = (i) => i && !i.separator && !i.heading && i.enabled !== false
+    const finish = (id) => {
+      if (done) return
+      done = true
+      for (const l of stack) l.el.remove()
+      removeEventListener('keydown', onKey, true)
+      removeEventListener('mousedown', onDown, true)
+      removeEventListener('blur', onBlur)
+      openMenu = null
+      resolve(id ?? null)
+    }
+    const iconHtml = (i) =>
+      !i.icon ? '<span class="c84-menu-icon"></span>'
+      : i.icon.trim().startsWith('<svg') ? `<span class="c84-menu-icon">${i.icon}</span>`
+      : `<span class="c84-menu-icon" style="-webkit-mask-image:url('${escHtml(i.icon)}');mask-image:url('${escHtml(i.icon)}')"></span>`
+    const open = (list, px, py, from) => {
+      const el = document.createElement('div')
+      el.className = 'c84-menu'
+      el.setAttribute('role', 'menu')
+      const checks = list.some((i) => i.checked !== undefined)
+      const icons = list.some((i) => i.icon)
+      el.innerHTML = list
+        .map((i, n) =>
+          i.separator ? '<div class="c84-menu-sep" role="separator"></div>'
+          : i.heading ? `<div class="c84-menu-head">${escHtml(i.heading)}</div>`
+          : `<div class="c84-menu-item" role="menuitem" data-n="${n}"${i.enabled === false ? ' aria-disabled="true"' : ''}>` +
+            (checks ? `<span class="c84-menu-check">${i.checked ? MENU_CHECK : ''}</span>` : '') +
+            (icons ? iconHtml(i) : '') +
+            `<span class="c84-menu-label">${escHtml(i.label ?? '')}</span>` +
+            (i.key ? `<span class="c84-menu-key">${escHtml(i.key)}</span>` : '') +
+            (i.submenu ? `<span class="c84-menu-sub">${MENU_ARROW}</span>` : '') +
+            '</div>',
+        )
+        .join('')
+      root.append(el)
+      // Where it fits: below and right of the point, or flipped back inside.
+      const r = el.getBoundingClientRect()
+      const W = innerWidth
+      const H = innerHeight
+      let left = px
+      let top = py
+      if (from) {
+        left = from.right - 2
+        top = from.top - 3
+        if (left + r.width > W - 4) left = from.left - r.width + 2
+      }
+      if (left + r.width > W - 4) left = Math.max(4, W - r.width - 4)
+      if (top + r.height > H - 4) top = Math.max(4, (from ? from.bottom + 3 : py) - r.height)
+      el.style.left = `${left}px`
+      el.style.top = `${Math.max(4, top)}px`
+      const level = { el, items: list, on: -1 }
+      stack.push(level)
+      el.addEventListener('mousemove', (e) => {
+        const row = e.target.closest('.c84-menu-item')
+        if (row) hover(stack.indexOf(level), +row.dataset.n)
+      })
+      el.addEventListener('mouseup', (e) => {
+        const row = e.target.closest('.c84-menu-item')
+        if (!row || row.getAttribute('aria-disabled') === 'true') return
+        const it = list[+row.dataset.n]
+        if (!it.submenu) finish(it.id)
+      })
+      return level
+    }
+    const rowOf = (level, n) => level.el.querySelector(`[data-n="${n}"]`)
+    const hover = (depth, n) => {
+      const level = stack[depth]
+      if (!level || level.on === n) return
+      while (stack.length > depth + 1) stack.pop().el.remove() // close deeper submenus
+      level.on = n
+      for (const row of level.el.querySelectorAll('.c84-menu-item')) row.classList.toggle('is-on', +row.dataset.n === n)
+      const it = level.items[n]
+      if (it?.submenu && usable(it)) open(it.submenu, 0, 0, rowOf(level, n).getBoundingClientRect())
+    }
+    const step = (level, dir) => {
+      const list = level.items
+      let n = level.on
+      for (let k = 0; k < list.length; k++) {
+        n = (n + dir + list.length) % list.length
+        if (usable(list[n])) return n
+      }
+      return level.on
+    }
+    const onKey = (e) => {
+      const depth = stack.length - 1
+      const level = stack[depth]
+      const it = level.items[level.on]
+      if (e.key === 'Escape') {
+        if (depth) stack.pop().el.remove()
+        else finish(null)
+      } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') hover(depth, step(level, e.key === 'ArrowDown' ? 1 : -1))
+      else if (e.key === 'ArrowRight') {
+        if (it?.submenu && usable(it) && stack.length === depth + 1) open(it.submenu, 0, 0, rowOf(level, level.on).getBoundingClientRect())
+        const sub = stack[depth + 1]
+        if (sub) hover(depth + 1, step(sub, 1))
+      } else if (e.key === 'ArrowLeft') {
+        if (depth) stack.pop().el.remove()
+      } else if (e.key === 'Enter' || e.key === ' ') {
+        if (usable(it)) {
+          if (it.submenu) {
+            const sub = stack[depth + 1] || open(it.submenu, 0, 0, rowOf(level, level.on).getBoundingClientRect())
+            hover(depth + 1, step(sub, 1))
+          } else finish(it.id)
+        }
+      }
+      // The menu has the keyboard while it is open.
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    // A press outside closes the menu and does nothing else.
+    const onDown = (e) => {
+      if (e.target.closest?.('.c84-menu')) return
+      e.stopPropagation()
+      e.preventDefault()
+      const eat = (ev) => {
+        ev.stopPropagation()
+        ev.preventDefault()
+      }
+      addEventListener('click', eat, { capture: true, once: true })
+      setTimeout(() => removeEventListener('click', eat, true), 800) // a drag never clicks
+      finish(null)
+    }
+    const onBlur = () => finish(null)
+    if (anchor) {
+      // A pull-down hangs from its title: just below it, aligned to its left.
+      const a = anchor.getBoundingClientRect()
+      open(items, a.left - 1, a.bottom + 1)
+    } else open(items, x, y)
+    addEventListener('keydown', onKey, true)
+    addEventListener('mousedown', onDown, true)
+    addEventListener('blur', onBlur)
+    openMenu = finish
+  })
+}

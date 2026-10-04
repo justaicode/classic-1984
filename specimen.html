@@ -120,16 +120,8 @@
     </div>
 
     <div class="row-gap" style="align-items:flex-start">
-      <div class="c84-menu" role="menu">
-        <button>Enter Full Screen</button>
-        <hr>
-        <button>Fill</button>
-        <button style="background:var(--ink);color:var(--paper)">Center</button>
-        <hr>
-        <button>Left Half</button>
-        <button>Right Half</button>
-        <hr>
-        <button disabled>Return to Previous Size</button>
+      <div class="c84-menu is-static" role="menu" style="width:250px">
+        <div class="c84-menu-item" role="menuitem"><span class="c84-menu-icon"><svg viewBox="0 0 16 14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 13V8M8 13V2M13 13V6"/></svg></span><span class="c84-menu-label">Statistics</span></div><div class="c84-menu-item" role="menuitem"><span class="c84-menu-icon"><svg viewBox="0 0 16 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12l1-3 7-7 2 2-7 7-3 1z"/></svg></span><span class="c84-menu-label">Edit project…</span><span class="c84-menu-key">⌘E</span></div><div class="c84-menu-item is-on" role="menuitem"><span class="c84-menu-icon"><svg viewBox="0 0 16 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1v4M8 9v4M2 7h4M10 7h4"/></svg></span><span class="c84-menu-label">Suggest roles…</span></div><div class="c84-menu-item" role="menuitem"><span class="c84-menu-icon"><svg viewBox="0 0 16 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1.5 3h4.5l1.5 1.5h7v7.5h-13z"/></svg></span><span class="c84-menu-label">Open folder</span></div><div class="c84-menu-sep"></div><div class="c84-menu-item" role="menuitem"><span class="c84-menu-icon"></span><span class="c84-menu-label">Sort by</span><span class="c84-menu-sub"><svg viewBox="0 0 8 10" width="7" height="9"><path d="M1 0l6 5-6 5z" fill="currentColor"/></svg></span></div><div class="c84-menu-sep"></div><div class="c84-menu-item" role="menuitem" aria-disabled="true"><span class="c84-menu-icon"></span><span class="c84-menu-label">Return to Previous Size</span></div><div class="c84-menu-item" role="menuitem"><span class="c84-menu-icon"><svg viewBox="0 0 16 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3.5h10M6 3.5V2h4v1.5M4.5 3.5l.7 9h5.6l.7-9"/></svg></span><span class="c84-menu-label">Delete project…</span></div>
       </div>
       <div class="c84-dialog" style="flex:1">
         <h3 style="margin:0 0 6px;font-size:14px">Lunch on Friday?</h3>
@@ -138,12 +130,12 @@
         <div class="row-gap" style="justify-content:flex-end;margin-top:8px"><button class="c84-button is-default">Vote</button></div>
       </div>
     </div>
-    <div class="c84-notice">✓ Notifications are on</div>
+    <div class="c84-notice">✓ Right-click anywhere for a live menu (submenu, ticks, keys)</div>
   </div>
 </div>
 
 <script type="module">
-  import { CLASSIC_TINTS, classicColors, applyClassic, applyTextSize, renderBitAvatar } from './classic-1984.js'
+  import { CLASSIC_TINTS, classicColors, applyClassic, applyTextSize, renderBitAvatar, showMenu } from './classic-1984.js'
   const q = new URLSearchParams(location.search)
   const tint = CLASSIC_TINTS.find((t) => t.key === q.get('tint'))
   const prefs = { hue: tint?.hue ?? 135, strength: q.has('strength') ? +q.get('strength') : tint?.hue != null ? 100 : 0, night: true }
@@ -154,6 +146,22 @@
     return `<div class="sw"><i style="background:${c.paper};color:${c.ink};border-color:${c.ink}">Aa</i>${t.label}</div>`
   }).join('')
   for (const el of document.querySelectorAll('.c84-avatar.is-bit')) renderBitAvatar(el, el.dataset.photo).catch(() => {})
+  addEventListener('contextmenu', (e) => {
+    e.preventDefault()
+    showMenu([
+      { id: 'stats', label: 'Statistics' },
+      { id: 'edit', label: 'Edit project…', key: '⌘E' },
+      { id: 'open', label: 'Open folder' },
+      { separator: true },
+      { id: 'sort', label: 'Sort by', submenu: [
+        { id: 'waiting', label: 'Waiting for you first', checked: true },
+        { id: 'recent', label: 'Most recent first', checked: false },
+        { id: 'name', label: 'Name', checked: false } ] },
+      { separator: true },
+      { id: 'stop', label: 'Stop the team', enabled: false },
+      { id: 'delete', label: 'Delete project…' },
+    ], { x: e.clientX, y: e.clientY }).then((id) => id && console.log('chose', id))
+  })
 </script>
 </body>
 </html>
