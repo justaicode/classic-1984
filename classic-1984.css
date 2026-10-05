@@ -423,16 +423,16 @@
 /* ---- Menus ------------------------------------------------------------- */
 
 /* A 1984 menu — pull-down, context menu, submenu — as Agentrix approved it
-   (version B, 4 Oct 2026): Chicago 13px, 21px rows, a thin ink edge with a
+   (version B, 4 Oct 2026): Chicago 13px, 27px rows (21px until 5 Oct 2026: cramped), a thin ink edge with a
    hard shadow, the row under the pointer reversed, dotted separators, and the
    app's line icons kept in a column of their own. showMenu() in
    classic-1984.js builds this markup, places it and runs the keyboard. */
 .c84-menu {
   position: fixed;
   z-index: 10000;
-  min-width: 180px;
-  max-width: 340px;
-  padding: 2px 0;
+  min-width: 200px;
+  max-width: 360px;
+  padding: 4px 0;
   background: var(--paper);
   color: var(--ink);
   border: 1px solid var(--ink);
@@ -448,9 +448,9 @@
 .c84-menu-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  height: 21px;
-  padding: 0 12px 0 10px;
+  gap: 10px;
+  height: 27px;
+  padding: 0 14px 0 12px;
   white-space: nowrap;
   cursor: default;
 }
@@ -512,7 +512,7 @@
 }
 .c84-menu-sep {
   height: 1px;
-  margin: 4px 0;
+  margin: 5px 0;
   background: var(--c84-dots-h);
 }
 /* A greyed heading inside a menu (a group's name) */
