@@ -266,7 +266,7 @@ Ekybe's team writes a quarter of its messages in Greek, so Greek is first-class.
 | Rule under a window title bar or a pane header | **2px** | ink |
 | Rule above the composer / a footer bar | 2px | ink |
 | Rule between menu groups | 1px dotted | ink |
-| Separator between two panes side by side | **1px** (1pt on a phone), full height; on a phone from below the status bar, fading in over 40pt | ink |
+| Separator between two panes side by side | **1px** (1pt on a phone), full height; on a phone it melts into the status bar's blur, sharp from below it | ink |
 | Disabled outline | 1px (2px on the default button) | muted |
 
 **Panes side by side** are parted by one thin ink line running their full height: no shadow under it, no dither gutter, no thick edge. On a phone the line never runs sharp through the status bar. A drawer (284pt wide) dims the conversation with `rgba(10,8,20,.5)` and casts one soft shadow on it (`8px 0 28px rgba(0,0,0,.3)`). Under the status bar iOS blurs a web view's content, strongly in the top third and fading to sharp at the bottom, so the edge between drawer and dimmed conversation goes soft at the top and the line melts away before the clock and Wi-Fi. A native app has to draw that blur itself (Agentrix's iPhone app does it row by row: a 4pt core inside a 24pt blur). A straight fade looks wrong. The drawer's header is the same height as the conversation's title bar, so their rules run straight across the edge. Drawn up through the status bar, the line or a hard dimming edge looked broken (Roberto, 5 Oct 2026). This is how Ekybe draws its sidebar against the conversation, and Roberto preferred it to Agentrix's iPhone drawer, which had a 3pt edge starting under the status bar plus a hard shadow (4 Oct 2026). A pane that can be dragged wider keeps the same line; the drag target is an invisible strip a few pixels either side of it.
@@ -411,13 +411,13 @@ Approved 4 Oct 2026 in Agentrix as **version B**: pure 1984, but the app's line 
 |---|---|
 | Box | Paper, 1px ink border, 2px hard shadow, 2px vertical padding, min 180px, max 340px wide |
 | Type | Chicago 13px, line height 1 |
-| Row | 21px tall, padding 0 12px 0 10px, 8px between columns, no wrapping |
+| Row | 27px tall, padding 0 14px 0 12px, 10px between columns, no wrapping (21px read as cramped; Roberto, 5 Oct 2026) |
 | Columns, left to right | Tick (11px, only if the menu has a checkable item) · icon (16 × 14px, only if any item has one) · label (ellipsis when too long) · shortcut (right, 18px gap) · submenu arrow (a solid right-pointing triangle, 14px gap) |
 | Icons | Line icons used as a **mask**, so they draw in the row's colour and reverse with it. A row without an icon keeps the empty column, so labels stay in line. |
 | Tick | A square-capped check, 11px |
 | Under the pointer | Reversed: ink row, paper text and icon |
 | Disabled | 40% ink: dimmer than muted text, never hidden |
-| Separator | 1px dotted rule, 4px above and below |
+| Separator | 1px dotted rule, 5px above and below |
 | Group heading | Chicago 11px, muted |
 
 ![Version B](images/menu-b.png)
@@ -792,6 +792,7 @@ The untouched original is kept in `fonts/source/ChicagoFLF.ttf`. To add another 
 | 3 Oct | ζ redrawn | Review of the drawn alphabet |
 | 4 Oct | Decorations queued, on-then-off, re-sent after full screen | The macOS bar came back over the 1984 one after a launch |
 | 4 Oct | Message text size: 5 steps, message text and composer only, per device | "can we have a setting for font size as well?" |
+| 5 Oct | Menu rows 21 → 27px, separators 5px apart, menu padding 4px | Roberto: the items were too cramped. |
 | 4 Oct | Menus drawn 1984 style, version B: Chicago, 21px rows, line icons kept, reversed row, dotted separators, submenus, keyboard | Agentrix mockup A (pure) / B (with icons) / B at night; Roberto chose B. Ekybe follows. |
 | 4 Oct | Panes parted by one thin ink line, full height, no shadow or gutter | Roberto, from Ekybe's sidebar on a phone: "I like this design better" than Agentrix's thick drawer edge |
 | 5 Oct | On a phone the line starts below the status bar and fades in; the dimmed conversation's edge is soft inside the status bar | Drawn through the status bar it "broke the view"; Ekybe's fades out before the clock and Wi-Fi |
