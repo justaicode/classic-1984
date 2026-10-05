@@ -316,7 +316,7 @@ Every component is in `classic-1984.css` and shown in `specimen.html`.
 - **Bar:**
   - 28px tall, with a 2px ink rule beneath.
   - The background is stripes, with a 7px paper margin at the top and bottom, so the stripes form a band in the middle.
-- **Title:** Chicago 14/20, centred over the whole bar (not the space left by the boxes), on a paper box with 12px padding either side, so it cuts the stripes.
+- **Title:** Chicago 14/20, centred over the whole bar (not the space left by the boxes), on a paper box with 12px padding either side, so it cuts the stripes. On a phone the box is only as wide as the title, with 4pt either side, so the stripes run right up to it; a long title is cut short so at least 36pt of stripes stay on each side (Roberto, 5 Oct 2026).
 - **Boxes:**
   - Close, minimise and zoom sit at the left: 13px paper squares with a 1px ink border.
   - Each has a 3px paper outline as a moat, so the stripes stop short of it.
