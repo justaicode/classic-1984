@@ -266,12 +266,14 @@ Ekybe's team writes a quarter of its messages in Greek, so Greek is first-class.
 | Rule under a window title bar or a pane header | **2px** | ink |
 | Rule above the composer / a footer bar | 2px | ink |
 | Rule between menu groups | 1px dotted | ink |
-| Separator between two panes side by side | **1px** (1pt on a phone), full height; on a phone from below the status bar, fading in over 28pt | ink |
+| Separator between two panes side by side | **1px** (1pt on a phone), full height; on a phone from below the status bar, fading in over 40pt | ink |
 | Disabled outline | 1px (2px on the default button) | muted |
 
-**Panes side by side** are parted by one thin ink line running their full height: no shadow under it, no dither gutter, no thick edge. On a phone the line never enters the status bar: it starts just below it (under the clock and Wi-Fi) and fades in from nothing over its first 28pt, as Ekybe's drawer does. Drawn up through the status bar it looked broken (Roberto, 5 Oct 2026). This is how Ekybe draws its sidebar against the conversation, and Roberto preferred it to Agentrix's iPhone drawer, which had a 3pt edge starting under the status bar plus a hard shadow (4 Oct 2026). A pane that can be dragged wider keeps the same line; the drag target is an invisible strip a few pixels either side of it.
+**Panes side by side** are parted by one thin ink line running their full height: no shadow under it, no dither gutter, no thick edge. On a phone the line never enters the status bar: it starts just below it (under the clock and Wi-Fi) and fades in from nothing over its first 40pt. A drawer over a conversation also dims the conversation (black at 38%), and inside the status bar that dimming fades in sideways from the drawer's edge over 36pt, so there is no hard vertical edge beside the clock and Wi-Fi either. This is how Ekybe's drawer looks. Drawn up through the status bar, the line or a hard dimming edge looked broken (Roberto, 5 Oct 2026). This is how Ekybe draws its sidebar against the conversation, and Roberto preferred it to Agentrix's iPhone drawer, which had a 3pt edge starting under the status bar plus a hard shadow (4 Oct 2026). A pane that can be dragged wider keeps the same line; the drag target is an invisible strip a few pixels either side of it.
 
 ![The pane line on a phone (Agentrix's drawer)](images/pane-line-iphone.png)
+
+![The top of the line beside Ekybe's](images/pane-line-iphone-top.png)
 
 ### 6.3 Elevation
 
@@ -792,7 +794,7 @@ The untouched original is kept in `fonts/source/ChicagoFLF.ttf`. To add another 
 | 4 Oct | Message text size: 5 steps, message text and composer only, per device | "can we have a setting for font size as well?" |
 | 4 Oct | Menus drawn 1984 style, version B: Chicago, 21px rows, line icons kept, reversed row, dotted separators, submenus, keyboard | Agentrix mockup A (pure) / B (with icons) / B at night; Roberto chose B. Ekybe follows. |
 | 4 Oct | Panes parted by one thin ink line, full height, no shadow or gutter | Roberto, from Ekybe's sidebar on a phone: "I like this design better" than Agentrix's thick drawer edge |
-| 5 Oct | On a phone the line starts below the status bar and fades in | Drawn through the status bar it "broke the view"; Ekybe's fades out before the clock and Wi-Fi |
+| 5 Oct | On a phone the line starts below the status bar and fades in; the dimmed conversation's edge is soft inside the status bar | Drawn through the status bar it "broke the view"; Ekybe's fades out before the clock and Wi-Fi |
 | 4 Oct | Phone menus: the same 1984 menu, 44pt rows, placed by the button, submenus in place | "We fixed the menu style in desktop, can you do the same for mobile as well?" |
 | 4 Oct | Panels switch instantly with their layers hidden for two frames | Agentrix left the old separator on screen for a few milliseconds when a side panel opened or closed |
 
