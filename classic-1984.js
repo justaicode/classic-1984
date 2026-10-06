@@ -343,3 +343,81 @@ export function showMenu(items, { x = 40, y = 40, anchor = null, root = document
     openMenu = finish
   })
 }
+
+/**
+ * A 1984 alert or confirmation: the double-bordered dialog box (§8.8), the
+ * message in Chicago, a detail line under it, the buttons on the right.
+ * Ported from Agentrix's showClassicDialog (Mac) and classicDialog (iPhone),
+ * 6 Oct 2026.
+ *
+ *   const n = await showDialog({
+ *     message: 'Move "Notes" to the Trash?',
+ *     detail: 'You can restore it from the Trash.',
+ *     buttons: ['Move to Trash', 'Cancel'],
+ *     destructive: 0,                      // the button that deletes, if any
+ *   })                                     // → 0, 1, or the cancel index on Esc
+ *
+ * Rules, from Roberto's choices:
+ * - The default button (ringed, what Return presses) is always the rightmost.
+ *   It's `defaultId` if given; when a button deletes (`destructive`), Cancel;
+ *   otherwise the first button.
+ * - Esc presses the cancel button: `cancelId`, else the one labelled Cancel,
+ *   else the last.
+ * - Nothing dims behind it and a press outside does nothing: a modal dialog
+ *   waits for an answer. It appears at once, in the upper part of the window.
+ * Resolves with the chosen button's index.
+ */
+export function showDialog({ message, detail = '', buttons = ['OK'], defaultId, cancelId, destructive, root = document.body } = {}) {
+  return dialogBox({ message, detail, buttons, defaultId, cancelId, destructive, root }).then((r) => r.button)
+}
+
+/**
+ * A text prompt (Rename…): the same box with a square field. Resolves with the
+ * text when the confirming button is pressed (or Return in the field), else null.
+ *
+ *   const name = await showPrompt({ message: 'Rename chat', value: 'Old name', confirm: 'Rename' })
+ */
+export function showPrompt({ message, detail = '', value = '', placeholder = '', confirm = 'OK', cancel = 'Cancel', root = document.body } = {}) {
+  return dialogBox({ message, detail, buttons: [cancel, confirm], defaultId: 1, cancelId: 0, field: { value, placeholder }, root })
+    .then((r) => (r.button === 1 ? r.value : null))
+}
+
+function dialogBox({ message, detail, buttons, defaultId, cancelId, destructive, field, root }) {
+  closeMenu()
+  const cancelAt = cancelId ?? (buttons.findIndex((b) => /^cancel$/i.test(b)) + 1 || buttons.length) - 1
+  const def = defaultId ?? (destructive != null ? cancelAt : 0)
+  const order = buttons.map((_, i) => i).filter((i) => i !== def).concat(def)
+  return new Promise((resolve) => {
+    const layer = document.createElement('div')
+    layer.className = 'c84-dialog-layer'
+    layer.innerHTML =
+      `<div class="c84-dialog is-alert" role="alertdialog" aria-modal="true" aria-label="${escHtml(message)}">` +
+      `<div class="c84-dialog-message">${escHtml(message)}</div>` +
+      (detail ? `<div class="c84-dialog-detail">${escHtml(detail)}</div>` : '') +
+      (field ? `<input class="c84-field c84-dialog-field" value="${escHtml(field.value || '')}" placeholder="${escHtml(field.placeholder || '')}">` : '') +
+      `<div class="c84-dialog-buttons">${order.map((i) => `<button class="c84-button${i === def ? ' is-default' : ''}" data-n="${i}">${escHtml(buttons[i])}</button>`).join('')}</div></div>`
+    const input = layer.querySelector('input')
+    const finish = (button) => {
+      layer.remove()
+      removeEventListener('keydown', onKey, true)
+      resolve({ button, value: input ? input.value.trim() : undefined })
+    }
+    const onKey = (e) => {
+      if (e.key === 'Enter') finish(def)
+      else if (e.key === 'Escape') finish(cancelAt)
+      else return // typing in the field goes through
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    layer.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-n]')
+      if (b) finish(+b.dataset.n)
+    })
+    root.append(layer)
+    addEventListener('keydown', onKey, true)
+    if (input) {
+      input.focus()
+      input.select()
+    } else layer.querySelector('.is-default')?.focus()
+  })
+}

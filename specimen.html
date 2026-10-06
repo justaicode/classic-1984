@@ -130,12 +130,25 @@
         <div class="row-gap" style="justify-content:flex-end;margin-top:8px"><button class="c84-button is-default">Vote</button></div>
       </div>
     </div>
+    <div class="row-gap" style="align-items:flex-start">
+      <div class="c84-dialog is-alert" style="flex:1">
+        <div class="c84-dialog-message">Move "Lunch plans" to the Trash?</div>
+        <div class="c84-dialog-detail">You can restore it from the Trash.</div>
+        <div class="c84-dialog-buttons"><button class="c84-button">Move to Trash</button><button class="c84-button is-default">Cancel</button></div>
+      </div>
+      <div class="c84-dialog is-alert" style="flex:1">
+        <div class="c84-dialog-message">Rename chat</div>
+        <input class="c84-field c84-dialog-field" value="Lunch plans">
+        <div class="c84-dialog-buttons"><button class="c84-button">Cancel</button><button class="c84-button is-default">Rename</button></div>
+      </div>
+    </div>
+    <div class="row-gap"><button class="c84-button" id="try-alert">Try a confirmation…</button><button class="c84-button" id="try-prompt">Try a prompt…</button></div>
     <div class="c84-notice">✓ Right-click anywhere for a live menu (submenu, ticks, keys)</div>
   </div>
 </div>
 
 <script type="module">
-  import { CLASSIC_TINTS, classicColors, applyClassic, applyTextSize, renderBitAvatar, showMenu } from './classic-1984.js'
+  import { CLASSIC_TINTS, classicColors, applyClassic, applyTextSize, renderBitAvatar, showMenu, showDialog, showPrompt } from './classic-1984.js'
   const q = new URLSearchParams(location.search)
   const tint = CLASSIC_TINTS.find((t) => t.key === q.get('tint'))
   const prefs = { hue: tint?.hue ?? 135, strength: q.has('strength') ? +q.get('strength') : tint?.hue != null ? 100 : 0, night: true }
@@ -146,6 +159,11 @@
     return `<div class="sw"><i style="background:${c.paper};color:${c.ink};border-color:${c.ink}">Aa</i>${t.label}</div>`
   }).join('')
   for (const el of document.querySelectorAll('.c84-avatar.is-bit')) renderBitAvatar(el, el.dataset.photo).catch(() => {})
+  document.getElementById('try-alert').onclick = () =>
+    showDialog({ message: 'Move "Lunch plans" to the Trash?', detail: 'You can restore it from the Trash.', buttons: ['Move to Trash', 'Cancel'], destructive: 0 })
+      .then((n) => console.log('button', n))
+  document.getElementById('try-prompt').onclick = () =>
+    showPrompt({ message: 'Rename chat', value: 'Lunch plans', confirm: 'Rename' }).then((v) => console.log('name', v))
   addEventListener('contextmenu', (e) => {
     e.preventDefault()
     showMenu([

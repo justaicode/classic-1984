@@ -534,6 +534,46 @@
     var(--c84-shadow);
   padding: 16px 18px;
 }
+/* Alerts, confirmations and prompts (showDialog, showPrompt): over the window,
+   in its upper part, with nothing dimmed behind. */
+.c84-dialog-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 16vh;
+}
+.c84-dialog.is-alert {
+  width: min(440px, calc(100vw - 40px));
+  color: var(--ink);
+}
+.c84-dialog-message {
+  font: 15px/1.35 var(--c84-display);
+}
+.c84-dialog-detail {
+  margin-top: 8px;
+  font: 13px/1.45 var(--c84-text);
+  white-space: pre-wrap;
+}
+.c84-dialog-field {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 12px;
+}
+.c84-dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+}
+.c84-dialog-buttons .c84-button {
+  min-width: 76px;
+  white-space: nowrap;
+}
 
 /* ---- Scroll bars ------------------------------------------------------- */
 

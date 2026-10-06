@@ -76,6 +76,14 @@ The 1984 Mac had a 1-bit screen, 512 × 342 pixels, black or white per pixel. Ev
 
    If you skip this step, the CSS defaults are black on white, day only.
 4. Build with the `c84-*` classes in §8. Open `specimen.html` to see every one of them. Serve the folder (`python3 -m http.server` in it), because fonts and 1-bit photos need same-origin.
+5. Ask questions and show menus through the kit, never the browser's own `confirm()` / `alert()` / context menu:
+
+   ```js
+   import { showMenu, showDialog, showPrompt } from './classic-1984.js'
+   const id = await showMenu(items, { x: e.clientX, y: e.clientY })            // §8.7
+   const n = await showDialog({ message, detail, buttons: ['Delete', 'Cancel'], destructive: 0 })  // §8.8
+   const text = await showPrompt({ message: 'Rename', value, confirm: 'Rename' })
+   ```
 
 A bare window:
 
@@ -317,6 +325,9 @@ Every component is in `classic-1984.css` and shown in `specimen.html`.
   - 28px tall, with a 2px ink rule beneath.
   - The background is stripes, with a 7px paper margin at the top and bottom, so the stripes form a band in the middle.
 - **Title:** Chicago 14/20, centred over the whole bar (not the space left by the boxes), on a paper box with 12px padding either side, so it cuts the stripes. On a phone the box is only as wide as the title, with 4pt either side, so the stripes run right up to it; a long title is cut short so at least 36pt of stripes stay on each side (Roberto, 5 Oct 2026).
+- **One line only.** The title is a single line: no subtitle under it. A small mark that says what the thing is (in Agentrix, the agent's logo) sits **after** the name, about 15pt, in ink, not in its brand colour; a status mark (a crown for a team's lead) sits **before** it. Anything already shown elsewhere on the screen (a folder, a path) is not repeated here.
+
+  ![A phone title bar: crown, name, mark](images/title-iphone.png)
 - **Boxes:**
   - Close, minimise and zoom sit at the left: 13px paper squares with a 1px ink border.
   - Each has a 3px paper outline as a moat, so the stripes stop short of it.
@@ -339,8 +350,11 @@ Every component is in `classic-1984.css` and shown in `specimen.html`.
     - Bottom Half
     - *(separator)*
     - Return to Previous Size (disabled until the window has been arranged)
-  - The menu closes 250ms after the pointer leaves, or on Escape.
+  - The menu closes 250ms after the pointer leaves the box *and* the menu (moving from one to the other keeps it open), or on Escape.
   - Tiles use the screen's work area, so the menu bar and Dock are excluded.
+  - Return to Previous Size puts back the bounds from before the first tile; tiling again from a tiled state keeps that first size.
+  - The window's minimum size gives way while it is tiled, so a half is a half on a laptop screen too, and comes back with Return to Previous Size. (Ekybe keeps its minimum, so its halves can be wider than half on small screens.)
+  - In Electron, see §12.1b: square corners make a window unable to go full screen the usual way.
 
 The native platform bar must be **removed, not hidden** (§12.1).
 
@@ -458,9 +472,38 @@ The Mac title bar's zoom-box menu (§8.1) is one of these menus, opened by hover
 
 ### 8.8 Dialog
 
-`.c84-dialog`
+`.c84-dialog` · `.is-alert` · `.c84-dialog-message` · `.c84-dialog-detail` · `.c84-dialog-field` · `.c84-dialog-buttons` — alerts built and run by `showDialog()` and `showPrompt()` in `classic-1984.js`.
 
 The 1984 double border: 1px ink, 3px paper, 2px ink, then the 2px hard shadow. Padding is 16px × 18px. In Ekybe, a poll inside a message is drawn as a dialog box, and the button that votes is the default button.
+
+**Alerts, confirmations and prompts.** Every question the app asks (Move to Trash?, Delete?, Couldn't save…, Rename…) is this box while Classic is on. The platform's own alert is never used for them: on iOS it took Classic's fonts and tint and came out broken (the field ran past its edge, the buttons went grey), and on a Mac or in a browser it is the one modern thing left on screen (Roberto, 6 Oct 2026: "every dialog themed").
+
+| Part | Spec |
+|---|---|
+| Box | `.c84-dialog`, 440px wide (window − 40px at most). Phone: screen − 48pt |
+| Message | Chicago 15/1.35 (phone: Chicago 17pt). It says what will happen, as a question or a statement |
+| Detail | Optional, under the message, 8px apart: Chicago Light 13/1.45, the consequences in one or two sentences |
+| Field (prompts only) | A square `.c84-field` the box's width, 12px under the message, with the current value selected |
+| Buttons | On the right, 12px apart, 18px under the text, at least 76px wide, labels on one line. Verbs, not Yes/No: "Move to Trash", "Delete project", "Rename" |
+| Default button | Ringed (§8.5), **always the rightmost**. Return presses it |
+| Which is default | The action, unless the action deletes or can't be undone: then **Cancel** is the default, so Return never deletes (Roberto, 6 Oct 2026). A prompt's default is its confirming button |
+| Cancel | Esc presses it. A one-button alert's only button (OK) is both |
+| Placement | Centred across, in the upper part of the window (16% down; phone: ~150–170pt from the top, so the keyboard never covers it) |
+| Behind it | Nothing dims and nothing blurs. A press outside does nothing: a modal dialog waits for an answer |
+| Motion | None: it appears and disappears |
+
+| Mac | iPhone |
+|---|---|
+| ![Mac confirmation](images/dialog-mac.png) | ![iPhone confirmation](images/dialog-iphone-trash.png) ![iPhone prompt](images/dialog-iphone-rename.png) |
+
+```js
+import { showDialog, showPrompt } from './classic-1984.js'
+if (await showDialog({ message: 'Move "Notes" to the Trash?', detail: 'You can restore it from the Trash.',
+                       buttons: ['Move to Trash', 'Cancel'], destructive: 0 }) === 0) trash()
+const name = await showPrompt({ message: 'Rename chat', value: oldName, confirm: 'Rename' })  // string or null
+```
+
+Out of scope: file and folder pickers (open, save, choose folder) stay the system's own; they are whole windows with their own navigation, not questions. Long-press menus on a phone stay the system's too (§8.7).
 
 ### 8.9 Scroll bars
 
@@ -610,6 +653,20 @@ The native title bar must go entirely; hiding parts of it does not work. Ekybe d
 
 Reference: Ekybe `src/components/ClassicTitleBar.tsx`.
 
+### 12.1b Mac desktop app (Electron)
+
+Agentrix does the same in Electron (`src/main.js`, `renderer/classic.css`):
+
+- **No frame:** `new BrowserWindow({ frame: false, roundedCorners: false })` in Classic. A frame can't change at runtime, so switching into or out of Classic reopens the window in place (same bounds), with the native frame back in the other themes.
+- **Full screen:** `roundedCorners: false` makes Electron treat the window as **not fullscreenable**, so `setFullScreen(true)` silently does nothing (the zoom box did nothing until 5 Oct 2026). Use `setSimpleFullScreen()` for these windows: it covers the screen in place, without a new Space. Framed windows keep `setFullScreen()`.
+- **Tiling** (the zoom box's menu): `screen.getDisplayMatching(win.getBounds()).workArea`, then `setBounds`; lower `setMinimumSize` while tiled and restore it with the previous bounds.
+- **Drag region:** the bar is `-webkit-app-region: drag`; the boxes, buttons and any menu or dialog drawn over it are `no-drag`, or they can't be clicked.
+- **Menus and dialogs** are drawn by the page, because macOS draws its own and they can't be themed. The main process keeps one function for each, taking Electron's own shapes:
+  - `popup(template)` → in Classic, a plain copy of the template (labels, ticks, icons as data URLs) is sent to the window, which draws it with `showMenu`-style code and sends back the chosen id; in the other themes, `Menu.buildFromTemplate(template).popup()`.
+  - `messageBox(options)` → in Classic, `{ message, detail, buttons, defaultId, cancelId }` is sent to the window, which draws the dialog (§8.8) and answers with the button's index, as `{ response }`; in the other themes, `dialog.showMessageBox(win, options)`. If the window closes first, the answer is the cancel button.
+  - The page's own questions go through the same path (an IPC call into `messageBox`), never `confirm()` or `alert()`, which are plain browser pop-ups that can't be styled.
+  - Text fields' Cut / Copy / Paste menu stays native (roles).
+
 ### 12.2 Browser
 
 No window bar of our own: the browser has its chrome. Pane headers keep their 9px stripe band. Scroll-bar styling is WebKit/Blink only; Firefox shows its own thin bars, coloured by `color-scheme`.
@@ -636,6 +693,13 @@ Agentrix's iPhone app implements the same system natively in `ios/AgentDeck/Clas
 | Lists, bars | `ClassicList`, `ClassicBar` |
 | `showMenu()`, `.c84-menu` | `AppMenu` with `MenuEntry` data (`ClassicMenu.swift`): iOS's `Menu` in the other looks, the 1984 menu in Classic, from one definition |
 | Pane separator | A 1pt ink line, full height (the drawer's edge in `DrawerView.swift`) |
+| `showDialog()`, `showPrompt()` | `.classicDialog(_:isPresented:message:sheet:buttons:)` with `DialogButton`s, and `.textPrompt(_:isPresented:text:confirm:)`: iOS's alert or action sheet in the other looks, the 1984 box in Classic, from one call |
+
+**Presenting over everything.** Menus and dialogs are a `fullScreenCover` with `.presentationBackground(.clear)` and animations off (`Transaction.disablesAnimations`), so they also work inside sheets and appear at once. Two things learned the hard way (Agentrix, 5–6 Oct 2026):
+
+- Hand the cover what it needs **at the moment of the tap**: use `fullScreenCover(item:)` with an item carrying the button's frame and the menu's entries. The cover's content is built from an earlier copy of the view, so reading the frame from `@State` there gave `.zero`, and a menu opened from a screen that had just slid in appeared in the top-left corner.
+- Track the button's frame with `onGeometryChange(for: CGRect.self) { $0.frame(in: .global) }`, not a `GeometryReader` with `onChange`: the reader only re-runs when its own size changes, so moves (a drawer closing, a launch) leave a stale frame.
+- Run the chosen action in `onDismiss`, after the cover has gone, so a sheet or another dialog it opens can appear.
 
 Register fonts by PostScript name. Agentrix uses `ChicagoFLF` and `ChicagoFLF-Light`. This kit's files are `ChicagoFLF-Greek` (display) and `ChicagoFLF-Light` (text, now with Greek); swap them in to get Greek natively too.
 
@@ -703,6 +767,7 @@ This is how Ekybe added Classic as a sixth theme without rewriting its component
 - **Focus is visible** (§10), although 1984 had none.
 - **Patterns** never sit behind text.
 - **Motion:** there is none, so `prefers-reduced-motion` needs nothing.
+- **Dialogs:** `role="alertdialog"`, `aria-modal="true"`, labelled by the message; focus starts on the default button (or in a prompt's field).
 - **Screen readers:** the window boxes need `aria-label`s ("Close window", "Minimise window", "Full screen"). The zoom box has `aria-haspopup="menu"`; its menu is `role="menu"` with `menuitem`s.
 
 ---
@@ -722,6 +787,8 @@ This is how Ekybe added Classic as a sixth theme without rewriting its component
 | Make it appear instantly | Fade, slide, spring |
 | Keep pane headers the same height | Let one header be 2px taller than its neighbour |
 | Remove the native Mac title bar entirely | Hide parts of it, or draw a second bar under it |
+| Ask every question in the 1984 dialog box, Cancel the default when it deletes | Use the system alert, `confirm()` or `alert()` while Classic is on |
+| Keep a title to one line, its mark in ink | Put a second line or a coloured logo in the title bar |
 
 ---
 
@@ -743,6 +810,9 @@ Before calling an app "in the Classic style":
 - [ ] Scroll bars are square, with a dithered track
 - [ ] On Mac, the native title bar is gone after launch, after a theme switch and after leaving full screen
 - [ ] Text size works and phones never go below 16px in fields
+- [ ] Every alert, confirmation and prompt is the 1984 dialog box; Return presses the ringed rightmost button, Esc cancels, and nothing that deletes is the default
+- [ ] Menus and dialogs open next to their button (or in the window's upper part) every time, including right after a screen slid in
+- [ ] On Mac, the zoom box goes full screen and its hover menu tiles the window
 - [ ] Nothing animates
 - [ ] Focus is visible
 
@@ -797,6 +867,10 @@ The untouched original is kept in `fonts/source/ChicagoFLF.ttf`. To add another 
 | 4 Oct | Panes parted by one thin ink line, full height, no shadow or gutter | Roberto, from Ekybe's sidebar on a phone: "I like this design better" than Agentrix's thick drawer edge |
 | 5 Oct | On a phone the line starts below the status bar and fades in; the dimmed conversation's edge is soft inside the status bar | Drawn through the status bar it "broke the view"; Ekybe's fades out before the clock and Wi-Fi |
 | 4 Oct | Phone menus: the same 1984 menu, 44pt rows, placed by the button, submenus in place | "We fixed the menu style in desktop, can you do the same for mobile as well?" |
+| 5 Oct | Agentrix's zoom box gets Ekybe's hover menu; its full screen uses simple full screen | The box did nothing in Electron: square corners made the window not fullscreenable |
+| 5 Oct | Phone title bar on one line: name, then the object's mark in ink; a status mark (crown) before the name | Roberto: one line instead of two, the stripes either side; the mark moved after the name so the crown keeps its place before it |
+| 5 Oct | Phone menus take the button's place at the tap | A menu opened in the top-left corner after a screen slid in from the drawer |
+| 6 Oct | Every alert, confirmation and prompt drawn as the 1984 dialog box, Mac and phone; Cancel is the default where a button deletes | "Rename pop up seems to have a broken design… Can it be 1984 themed?"; then "All of them", "Cancel" |
 | 4 Oct | Panels switch instantly with their layers hidden for two frames | Agentrix left the old separator on screen for a few milliseconds when a side panel opened or closed |
 
 ---
@@ -807,10 +881,11 @@ The untouched original is kept in `fonts/source/ChicagoFLF.ttf`. To add another 
 |---|---|
 | `README.md` | This document |
 | `classic-1984.css` | Tokens, patterns and every component as `c84-*` classes |
-| `classic-1984.js` | Colour recipe, presets, `applyClassic`, `followSystem`, text sizes, `ditherMask`, `renderBitAvatar`, `showMenu`, `closeMenu` |
+| `classic-1984.js` | Colour recipe, presets, `applyClassic`, `followSystem`, text sizes, `ditherMask`, `renderBitAvatar`, `showMenu`, `closeMenu`, `showDialog`, `showPrompt` |
 | `fonts/ChicagoGreek.ttf`, `fonts/ChicagoLight.ttf` | The two faces |
 | `fonts/README.ChicagoFLF` | The public-domain statement for ChicagoFLF |
 | `images/menu-iphone.png`, `images/pane-line-iphone.png` | The phone menu and the pane line, from Agentrix's iPhone app |
+| `images/dialog-mac.png`, `images/dialog-iphone-trash.png`, `images/dialog-iphone-rename.png`, `images/title-iphone.png` | Dialogs on Mac and iPhone, and the one-line phone title bar, from Agentrix |
 | `fonts/Geneva.ttf`, `fonts/README.Geneva` | An optional Geneva text face (a 1992 copy, Latin only) and where it came from |
 | `fonts/source/ChicagoFLF.ttf` | The untouched original, input to the font tools |
 | `specimen.html` | Every component; right-click for a live menu. Query `?tint=green|teal|blue|amber`, `?night=1`, `?strength=0..100`, `?size=-2..2` |
@@ -830,4 +905,9 @@ The untouched original is kept in `fonts/source/ChicagoFLF.ttf`. To add another 
   - `src/components/Avatar.tsx`: the four picture styles
   - `src/components/AccountPanel.tsx` (`Appearance`): the settings UI
   - Ekybe includes this repository as a submodule at `design/classic-1984` and takes its fonts from it.
-- **Agentrix:** `renderer/classic.css` (Electron) and `ios/AgentDeck/Classic.swift` (SwiftUI).
+- **Agentrix:**
+  - `renderer/classic.css`: the theme layer (Electron)
+  - `src/main.js`: `makeWindow` (frameless in Classic), `popup` and `messageBox` (menus and dialogs sent to the page), `arrangeWindow` / `isFull` (zoom box)
+  - `renderer/app.js`: `showClassicMenu`, `showClassicDialog`, `initZoomBox`
+  - `ios/AgentDeck/Classic.swift`: colours, fonts, boxes, buttons, `.classicDialog`, `.textPrompt` (SwiftUI)
+  - `ios/AgentDeck/ClassicMenu.swift`: `AppMenu`, `MenuEntry`; `ios/AgentDeck/DrawerView.swift`: the phone drawer
