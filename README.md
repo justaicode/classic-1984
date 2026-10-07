@@ -349,12 +349,12 @@ Rules:
 | State | Mac | Phone |
 |---|---|---|
 | Idle | + · autonomy · model · Send | + · model · mic · Send |
-| Agent working | + · autonomy · Working m:ss · model · **Queue · Stop** (Return still sends, interrupting; ⌥Return queues) | + · **Queue · Stop** · mic · **Send** (interrupts) |
+| Agent working | + · autonomy · Working m:ss · model · **Queue · Stop · Send** | + · **Queue · Stop** · mic · **Send** |
 
-The two platforms differ only where the device does: the phone has no Return key to send while the
-agent works, so Send stays on screen there; it has a microphone, and it's too narrow for the model
-chip next to Queue (rule 5). Queue shows for the whole time the agent works, dimmed until there's
-something typed.
+While the agent works, **Send interrupts it** and sends now, **Queue** waits for its turn to end, and
+**Stop** stops it; on the Mac Return is Send and ⌥Return is Queue. Queue shows for the whole time
+the agent works, dimmed until there's something typed. The two differ only where the device does:
+the phone has a microphone, and it's too narrow for the model chip beside Queue (rule 5).
 
 ### 7.3 The question form
 
@@ -951,6 +951,7 @@ The untouched original is kept in `fonts/source/ChicagoFLF.ttf`. To add another 
 | 5 Oct | Phone title bar on one line: name, then the object's mark in ink; a status mark (crown) before the name | Roberto: one line instead of two, the stripes either side; the mark moved after the name so the crown keeps its place before it |
 | 5 Oct | Phone menus take the button's place at the tap | A menu opened in the top-left corner after a screen slid in from the drawer |
 | 6 Oct | Every alert, confirmation and prompt drawn as the 1984 dialog box, Mac and phone; Cancel is the default where a button deletes | "Rename pop up seems to have a broken design… Can it be 1984 themed?"; then "All of them", "Cancel" |
+| 7 Oct | While the agent works, the Mac keeps Send (interrupting) beside Queue and Stop, as the phone | Roberto: "same on both" |
 | 7 Oct | Order of controls fixed for every row, look and screen (§7.1–7.4): add first, primary action last, Queue · Stop in fixed slots, attachments above the field, same words on Mac and phone | Roberto: "you don't keep a uniformity there… queue button and the new in form attach button are in a different order on Mac and mobile… Don't throw elements randomly" |
 | 4 Oct | Panels switch instantly with their layers hidden for two frames | Agentrix left the old separator on screen for a few milliseconds when a side panel opened or closed |
 
