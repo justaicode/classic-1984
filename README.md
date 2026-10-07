@@ -308,7 +308,82 @@ Nothing has a blurred shadow, a glow, or a translucent overlay. A modal backdrop
 | Window box (close/mini/zoom) | 13px square with a 3px paper moat | |
 | Default button outer ring | 2px paper gap + 3px ink | Needs 5px of margin around it |
 
-The spacing scale is the host app's. This system changes how things are drawn, not where they go.
+The spacing scale is the host app's. This system changes how things are drawn; where controls go is
+fixed by §7.1–7.4, in every look (Classic or not) and on every screen (Mac and phone).
+
+### 7.1 Order of controls in a row
+
+Every row of controls reads the same way, left to right:
+
+| Place | What | Examples |
+|---|---|---|
+| Leading | **Add** things to what you're writing | + (files, photos), paperclip |
+| Then | Options that change *how* it's sent | Autonomy (Edits only / Full auto) |
+| Middle | **The field**, taking the free width | Message box, "Type your own answer" |
+| Trailing, in this order | Status · choice of model · **Queue** · **Stop** · microphone · **the primary action** | Working 1:12 · Opus 5.5 High · Queue · ■ · 🎙 · ↑ / Send / Next |
+
+Rules:
+
+1. **The primary action is always last** (rightmost): Send, Next, OK, the default dialog button.
+2. **Add/attach is always first** (leftmost), before the field, never after it.
+3. **What's attached sits above the field it belongs to**, each item with its own ×; pictures as
+   thumbnails that open full screen on a tap.
+4. **A control keeps its place when it appears or hides.** Controls shown only in some states (Queue
+   and Stop while the agent works) slot into their fixed position in the order above; nothing else
+   moves round them.
+5. **When the screen is too narrow, the choice of model gives way first**, then status. Never the
+   field, the add button or the primary action.
+6. **A control that can't act right now is dimmed, not hidden** (Queue with nothing typed, Send with
+   an empty box), unless the whole state it belongs to is gone (Queue and Stop when nothing runs).
+7. **Same words everywhere**: the same label on Mac and phone ("Queue", "Next", "Send", "Type your own
+   answer"), and the same word for the same thing across screens.
+
+### 7.2 The message box
+
+```
+[ attached things, each with × ]
+[ text, growing with what's typed                                         ]
+[ + ] [autonomy]  ·····  [Working 1:12] [model ▾] [Queue] [■] [🎙] [ ↑ ]
+```
+
+| State | Mac | Phone |
+|---|---|---|
+| Idle | + · autonomy · model · Send | + · model · mic · Send |
+| Agent working | + · autonomy · Working m:ss · model · **Queue · Stop** (Return still sends, interrupting; ⌥Return queues) | + · **Queue · Stop** · mic · **Send** (interrupts) |
+
+The two platforms differ only where the device does: the phone has no Return key to send while the
+agent works, so Send stays on screen there; it has a microphone, and it's too narrow for the model
+chip next to Queue (rule 5). Queue shows for the whole time the agent works, dimmed until there's
+something typed.
+
+### 7.3 The question form
+
+```
+Question 2 of 4                                    ● ● ○ ○
+The question, in the title face
+[ picture, if the question has one ]
+( ) Option one
+    one short line of detail
+( ) Option two
+[ attached things, each with × ]
+[ 📎 ] [ Type your own answer                         ] [ Next | Send ]
+1. Earlier answer · 2. …                                        Back
+```
+
+- Header: "Question n of m" on the left, one progress mark per question on the right.
+- Options: radio circles in Classic, numbers elsewhere; the detail line under the label, muted.
+- The own-answer row is **always open**, never behind a tap, and follows §7.1: paperclip, field,
+  then the primary action (Next, or Send on the last question).
+- Answers so far and Back sit under the row.
+
+### 7.4 Mac and phone are one app
+
+- Every row has the same controls in the same order on both (§7.1). A difference needs a reason
+  that comes from the device (no Return key, a microphone, the width) and is written in the table
+  of that row.
+- When a control is added on one platform, the other gets it in the same change, in the same
+  place, or the difference is written down here.
+- New controls take their slot from §7.1; they're never added "wherever there's room".
 
 ---
 
@@ -789,6 +864,9 @@ This is how Ekybe added Classic as a sixth theme without rewriting its component
 | Remove the native Mac title bar entirely | Hide parts of it, or draw a second bar under it |
 | Ask every question in the 1984 dialog box, Cancel the default when it deletes | Use the system alert, `confirm()` or `alert()` while Classic is on |
 | Keep a title to one line, its mark in ink | Put a second line or a coloured logo in the title bar |
+| Put controls in §7.1's order: add first, the primary action last | Add a button wherever there's room, or in another order on the phone |
+| Keep a control's slot when it shows or hides; dim what can't act | Let buttons shuffle as states change |
+| Show what's attached above its field, with an × each | Show attachments below the field in one place and above it in another |
 
 ---
 
@@ -813,6 +891,8 @@ Before calling an app "in the Classic style":
 - [ ] Every alert, confirmation and prompt is the 1984 dialog box; Return presses the ringed rightmost button, Esc cancels, and nothing that deletes is the default
 - [ ] Menus and dialogs open next to their button (or in the window's upper part) every time, including right after a screen slid in
 - [ ] On Mac, the zoom box goes full screen and its hover menu tiles the window
+- [ ] Every row of controls follows §7.1 (add first, the field, status · model · Queue · Stop · mic · primary last), the same on Mac and phone
+- [ ] Attachments sit above their field; the own-answer box in forms is always open
 - [ ] Nothing animates
 - [ ] Focus is visible
 
@@ -871,6 +951,7 @@ The untouched original is kept in `fonts/source/ChicagoFLF.ttf`. To add another 
 | 5 Oct | Phone title bar on one line: name, then the object's mark in ink; a status mark (crown) before the name | Roberto: one line instead of two, the stripes either side; the mark moved after the name so the crown keeps its place before it |
 | 5 Oct | Phone menus take the button's place at the tap | A menu opened in the top-left corner after a screen slid in from the drawer |
 | 6 Oct | Every alert, confirmation and prompt drawn as the 1984 dialog box, Mac and phone; Cancel is the default where a button deletes | "Rename pop up seems to have a broken design… Can it be 1984 themed?"; then "All of them", "Cancel" |
+| 7 Oct | Order of controls fixed for every row, look and screen (§7.1–7.4): add first, primary action last, Queue · Stop in fixed slots, attachments above the field, same words on Mac and phone | Roberto: "you don't keep a uniformity there… queue button and the new in form attach button are in a different order on Mac and mobile… Don't throw elements randomly" |
 | 4 Oct | Panels switch instantly with their layers hidden for two frames | Agentrix left the old separator on screen for a few milliseconds when a side panel opened or closed |
 
 ---
