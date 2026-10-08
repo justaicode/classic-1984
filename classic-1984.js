@@ -180,8 +180,10 @@ export async function renderBitAvatar(el, url) {
  *     { id: 'del', label: 'Delete…', enabled: false },
  *   ], { x: e.clientX, y: e.clientY })        // or { anchor: buttonElement }
  *
- * Items: { id, label, icon?, checked?, enabled?, key?, submenu? },
- * { separator: true } or { heading: 'Text' }. `icon` is an image URL used as a
+ * Items: { id, label, icon?, checked?, enabled?, key?, letter?, submenu? },
+ * { separator: true } or { heading: 'Text' }. `key` shows a shortcut the app
+ * handles itself (⌘K); `letter` shows a key cap and the menu runs the row when
+ * that plain letter is pressed while it is open (§8.7). `icon` is an image URL used as a
  * mask (so it takes the ink and reverses with the row) or an inline <svg> string
  * drawn in currentColor. Resolves with the chosen id, or null.
  *
@@ -191,7 +193,8 @@ export async function renderBitAvatar(el, url) {
  * - The row under the pointer is reversed. A press can be dragged down the menu
  *   and released on an item, or a click opens it and a second click chooses.
  * - Keys: ↑ ↓ move (skipping separators and disabled rows), → opens a submenu,
- *   ← closes it, Return or Space chooses, Esc closes one level.
+ *   ← closes it, Return or Space chooses, Esc closes one level, and a row's
+ *   `letter` chooses that row.
  * - A press outside closes the menu and does nothing else: that click is eaten.
  * - Leaving the window closes it.
  */
@@ -239,6 +242,7 @@ export function showMenu(items, { x = 40, y = 40, anchor = null, root = document
             (icons ? iconHtml(i) : '') +
             `<span class="c84-menu-label">${escHtml(i.label ?? '')}</span>` +
             (i.key ? `<span class="c84-menu-key">${escHtml(i.key)}</span>` : '') +
+            (i.letter && !i.key ? `<span class="c84-menu-cap">${escHtml(i.letter)}</span>` : '') +
             (i.submenu ? `<span class="c84-menu-sub">${MENU_ARROW}</span>` : '') +
             '</div>',
         )
@@ -296,7 +300,18 @@ export function showMenu(items, { x = 40, y = 40, anchor = null, root = document
       const depth = stack.length - 1
       const level = stack[depth]
       const it = level.items[level.on]
-      if (e.key === 'Escape') {
+      const lettered =
+        e.key.length === 1 && !e.metaKey && !e.ctrlKey && !e.altKey
+          ? level.items.findIndex((i) => usable(i) && i.letter?.toLowerCase() === e.key.toLowerCase())
+          : -1
+      if (lettered >= 0) {
+        const hit = level.items[lettered]
+        if (hit.submenu) {
+          hover(depth, lettered)
+          const sub = stack[depth + 1]
+          if (sub) hover(depth + 1, step(sub, 1))
+        } else finish(hit.id)
+      } else if (e.key === 'Escape') {
         if (depth) stack.pop().el.remove()
         else finish(null)
       } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') hover(depth, step(level, e.key === 'ArrowDown' ? 1 : -1))

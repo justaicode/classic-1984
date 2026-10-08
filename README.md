@@ -492,7 +492,7 @@ Icon buttons (attach, emoji, microphone) stay as the host app draws them, in ink
 
 ### 8.7 Menus: pull-down, context menu, submenu
 
-`.c84-menu` · `.c84-menu-item` (`.is-on`, `[aria-disabled]`) · `.c84-menu-icon` · `.c84-menu-check` · `.c84-menu-label` · `.c84-menu-key` · `.c84-menu-sub` · `.c84-menu-sep` · `.c84-menu-head` — built and run by `showMenu()` in `classic-1984.js`.
+`.c84-menu` · `.c84-menu-item` (`.is-on`, `[aria-disabled]`) · `.c84-menu-icon` · `.c84-menu-check` · `.c84-menu-label` · `.c84-menu-key` · `.c84-menu-cap` · `.c84-menu-sub` · `.c84-menu-sep` · `.c84-menu-head` · `.c84-menu-seg` — built and run by `showMenu()` in `classic-1984.js`.
 
 Approved 4 Oct 2026 in Agentrix as **version B**: pure 1984, but the app's line icons are kept.
 
@@ -507,9 +507,21 @@ Approved 4 Oct 2026 in Agentrix as **version B**: pure 1984, but the app's line 
 | Under the pointer | Reversed: ink row, paper text and icon |
 | Disabled | 40% ink: dimmer than muted text, never hidden |
 | Separator | 1px dotted rule, 5px above and below |
-| Group heading | Chicago 11px, muted |
+| Group heading | Chicago 11px, muted, padding 6px 14px 3px 12px |
+| Letter key | `.c84-menu-cap`: the letter in a 1px box like a key cap, Chicago 11px, 16px wide at least, 18px from the label; it reverses with the row |
+| Switch | `.c84-menu-seg`: a choice of one inside a menu (a notification level), boxed cells in a row, the chosen one reversed |
 
 ![Version B](images/menu-b.png)
+
+**Groups and letter keys** (Ekybe, approved 8 Oct 2026). A menu longer than a handful of rows is split into groups by what the rows do:
+
+- Each group gets a heading and a dotted rule above it, as in the message menu below: **Reply** (in thread, with quote, forward) · **Copy** (text, link, download) · **Keep** (save, remind, pin) · **Your message** (edit, delete).
+- A group with nothing in it this time is left out with its heading and rule, so there are never two rules in a row or a heading over nothing.
+- A short menu needs no headings: two or three rows, then rules only where the kind of action changes.
+- A row can carry a **letter**. While the menu is open, pressing it runs the row (`letter` on a `showMenu()` item). Use plain letters, never ⌘ ones: ⌘Q, ⌘R and ⌘C already quit, reload and copy in a desktop app. Show the letters only where there is a keyboard. Delete takes ⌫ (Backspace or Delete).
+- `key` stays for a real shortcut the app handles itself (⌘E); a row shows a `key` or a `letter`, not both.
+
+![Grouped menus with letter keys and a switch](images/menu-groups.png)
 
 **Behaviour:**
 - **Placement:**
@@ -953,6 +965,7 @@ The untouched original is kept in `fonts/source/ChicagoFLF.ttf`. To add another 
 | 6 Oct | Every alert, confirmation and prompt drawn as the 1984 dialog box, Mac and phone; Cancel is the default where a button deletes | "Rename pop up seems to have a broken design… Can it be 1984 themed?"; then "All of them", "Cancel" |
 | 7 Oct | While the agent works, the Mac keeps Send (interrupting) beside Queue and Stop, as the phone | Roberto: "same on both" |
 | 7 Oct | Order of controls fixed for every row, look and screen (§7.1–7.4): add first, primary action last, Queue · Stop in fixed slots, attachments above the field, same words on Mac and phone | Roberto: "you don't keep a uniformity there… queue button and the new in form attach button are in a different order on Mac and mobile… Don't throw elements randomly" |
+| 8 Oct | Long menus in groups (heading and dotted rule each), letter keys in key caps, a switch for a choice of one | Ekybe: "this menu… needs some breathing room, more space between items, proper icons, and also some kind of separation by category"; mockups approved for both looks |
 | 4 Oct | Panels switch instantly with their layers hidden for two frames | Agentrix left the old separator on screen for a few milliseconds when a side panel opened or closed |
 
 ---
